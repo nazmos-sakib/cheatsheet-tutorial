@@ -1,0 +1,62 @@
+# Commands for this cheatsheet.
+# Each section becomes a heading; each command becomes a row with a copy button.
+#   cmd:  the command exactly as you'd type it
+#   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
+#   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
+
+sections:
+  - name: Preview the site locally
+    note: Run these inside the repo folder.
+    commands:
+      - id: bundle-install
+        cmd: bundle install
+        desc: Install the Ruby gems listed in the `Gemfile`. Run once after cloning, and again whenever the `Gemfile` changes.
+      - id: serve
+        cmd: bundle exec jekyll serve
+        desc: Build the site and serve it at `http://localhost:4000/cheatsheet-tutorial/`. Rebuilds automatically when you save a file. Stop it with `Ctrl+C`.
+      - id: serve-on-custom-baseurl
+        cmd: bundle exec jekyll serve --baseurl ""
+        desc: Build the site and serve it at `http://localhost:4000/`. put any string inside ""
+      - id: serve-livereload
+        cmd: bundle exec jekyll serve --livereload
+        desc: Same as above, but the browser also refreshes itself after every rebuild.
+      - id: build
+        cmd: bundle exec jekyll build
+        desc: Build the site into the `_site/` folder without starting a server. Handy for checking that there are no build errors.
+      - id: bundle-update
+        cmd: bundle update github-pages
+        desc: Update to the gem versions GitHub Pages currently uses, so local previews keep matching the live site.
+
+  - name: Everyday Git
+    commands:
+      - id: status
+        cmd: git status
+        desc: Show which files you changed, added or deleted since the last commit.
+      - id: pull
+        cmd: git pull
+        desc: Download changes made elsewhere (for example an edit on github.com) before you start working.
+      - id: add-all
+        cmd: git add .
+        desc: Stage every changed file in the current folder for the next commit.
+      - id: commit
+        cmd: 'git commit -m "Add tutorial: parse server setup"'
+        desc: Save the staged changes as one commit with a short message saying what changed.
+      - id: push
+        cmd: git push
+        desc: Upload your commits to GitHub. GitHub Pages rebuilds and publishes the site about a minute later.
+      - id: log
+        cmd: git log --oneline -10
+        desc: Show the last 10 commits, one line each.
+
+  - name: Undo mistakes
+    note: These only affect your own computer until you push.
+    commands:
+      - id: restore
+        cmd: git restore path/to/file.md
+        desc: Throw away uncommitted changes in one file and go back to the last committed version.
+      - id: unstage
+        cmd: git restore --staged path/to/file.md
+        desc: Take a file back out of the staging area without losing your edits.
+      - id: amend
+        cmd: git commit --amend -m "Better message"
+        desc: Replace the message of your last commit. Only do this **before** pushing.

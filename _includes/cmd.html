@@ -1,0 +1,22 @@
+{%- comment -%}
+  Pull one command from a cheatsheet into any page, so it is written only once.
+  Usage: {% include cmd.html sheet="site-maintenance" id="serve" %}
+  "sheet" is the file name in _data/cheatsheets/ (without .yml),
+  "id" is the command's id inside that file.
+{%- endcomment -%}
+{%- assign found_cmd = nil -%}
+{%- assign sheet_data = site.data.cheatsheets[include.sheet] -%}
+{%- for section in sheet_data.sections -%}
+  {%- for c in section.commands -%}
+    {%- if c.id == include.id -%}{%- assign found_cmd = c -%}{%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- assign sheet_page = site.cheatsheets | where: "sheet", include.sheet | first -%}
+{%- if found_cmd -%}
+<figure class="cmd-ref">
+  <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{ found_cmd.cmd | escape }}</code></pre></div></div>
+  <figcaption>{{ found_cmd.desc | markdownify | remove: '<p>' | remove: '</p>' | strip }}{% if sheet_page %} <a href="{{ sheet_page.url | relative_url }}#{{ found_cmd.id }}">From the {{ sheet_page.title }} cheatsheet</a>{% endif %}</figcaption>
+</figure>
+{%- else -%}
+<p class="callout callout--warning">Command "{{ include.id }}" not found in cheatsheet "{{ include.sheet }}".</p>
+{%- endif -%}

@@ -1,0 +1,28 @@
+{%- comment -%}
+  A filterable list of tutorials or cheatsheets.
+  Usage: {% include entry-list.html items=site.tutorials kind="tutorial" limit=20 %}
+{%- endcomment -%}
+{%- assign items = include.items | sort: "updated", "last" | reverse -%}
+{%- assign lim = include.limit | default: 1000 -%}
+{%- assign base = '/tutorials/' -%}
+{%- if include.kind == 'cheatsheet' -%}{%- assign base = '/cheatsheets/' -%}{%- endif -%}
+<ol class="entries entries--{{ include.kind }}" data-filter-list>
+  {%- for item in items limit: lim -%}
+  <li class="entry" data-tags="{{ item.tags | join: ' ' | downcase }}">
+    <a class="entry-title" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+    {%- if item.description %}<p class="entry-desc">{{ item.description }}</p>{% endif -%}
+    <div class="entry-meta">
+      {%- if include.kind == 'cheatsheet' -%}
+        {%- assign sheet = site.data.cheatsheets[item.sheet] -%}
+        {%- assign count = 0 -%}
+        {%- for section in sheet.sections -%}{%- assign count = count | plus: section.commands.size -%}{%- endfor -%}
+        <span>{{ count }} commands</span>
+      {%- elsif item.updated -%}
+        <time datetime="{{ item.updated | date: '%Y-%m-%d' }}">Updated {{ item.updated | date: '%-d %b %Y' }}</time>
+      {%- endif -%}
+      {% include tag-list.html tags=item.tags base=base %}
+    </div>
+  </li>
+  {%- endfor -%}
+</ol>
+<p class="empty-state" data-filter-empty hidden>Nothing tagged with that yet. <button type="button" class="link-btn" data-filter-clear>Show everything</button></p>

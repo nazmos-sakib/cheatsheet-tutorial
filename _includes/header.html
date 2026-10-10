@@ -1,0 +1,20 @@
+{%- assign path = page.url | default: '' -%}
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="{{ '/tutorials/' | relative_url }}" {% if path contains '/tutorials/' %}aria-current="page"{% endif %}>Tutorials</a>
+      <a href="{{ '/cheatsheets/' | relative_url }}" {% if path contains '/cheatsheets/' %}aria-current="page"{% endif %}>Cheatsheets</a>
+      <a href="{{ '/about/' | relative_url }}" {% if path contains '/about/' %}aria-current="page"{% endif %}>About</a>
+    </nav>
+    <div class="header-tools">
+      <button class="icon-btn" type="button" data-open-search aria-label="Search (press /)" title="Search (press /)">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch colour theme" title="Switch colour theme">
+        <svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>

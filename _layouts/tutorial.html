@@ -1,0 +1,31 @@
+---
+layout: default
+body_class: tutorial-page
+---
+<article class="wrap doc">
+  <header class="doc-header">
+    <p class="crumbs"><a href="{{ '/tutorials/' | relative_url }}">Tutorials</a></p>
+    <h1>{{ page.title }}</h1>
+    {%- if page.description %}<p class="lede">{{ page.description }}</p>{% endif -%}
+    <dl class="doc-facts">
+      {%- if page.updated %}<div><dt>Updated</dt><dd><time datetime="{{ page.updated | date: '%Y-%m-%d' }}">{{ page.updated | date: '%-d %B %Y' }}</time></dd></div>{% endif -%}
+      {%- if page.tested_on %}<div><dt>Tested on</dt><dd>{{ page.tested_on }}</dd></div>{% endif -%}
+      {%- if page.time %}<div><dt>Time needed</dt><dd>{{ page.time }}</dd></div>{% endif -%}
+    </dl>
+    {% include tag-list.html tags=page.tags base="/tutorials/" %}
+  </header>
+
+  <div class="doc-body">
+    <details class="toc" data-toc open>
+      <summary>On this page</summary>
+      <nav aria-label="On this page"><ol data-toc-list></ol></nav>
+    </details>
+    <div class="prose steps" data-steps>
+      {{ content }}
+    </div>
+  </div>
+
+  {%- if site.repository_url != "" %}
+  <p class="edit-link"><a href="{{ site.repository_url }}/edit/main/{{ page.path }}">Edit this page on GitHub</a></p>
+  {%- endif %}
+</article>

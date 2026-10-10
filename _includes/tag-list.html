@@ -1,0 +1,11 @@
+{%- comment -%}
+  Renders a list of tag links.
+  Usage: {% include tag-list.html tags=page.tags base="/tutorials/" %}
+{%- endcomment -%}
+{%- if include.tags and include.tags.size > 0 -%}
+<ul class="tags" aria-label="Tags">
+  {%- for tag in include.tags -%}
+  <li><a class="tag" href="{{ include.base | default: '/tutorials/' | relative_url }}?tag={{ tag | url_encode }}">{{ tag }}</a></li>
+  {%- endfor -%}
+</ul>
+{%- endif -%}

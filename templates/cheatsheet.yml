@@ -1,0 +1,11 @@
+# Save as _data/cheatsheets/tool-name.yml
+sections:
+  - name: Section name
+    note: Optional one-line note under the heading.
+    commands:
+      - id: short-id
+        cmd: the-command --with args
+        desc: What it does. Markdown like `code` works here.
+      - id: another-id
+        cmd: another-command
+        desc: What this one does.

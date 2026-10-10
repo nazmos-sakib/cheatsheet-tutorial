@@ -1,0 +1,57 @@
+# ------------------------------------------------------------------
+# Site settings — edit these first
+# ------------------------------------------------------------------
+title: "Nazmos's Workbench"
+tagline: "Things I've built, and the commands I keep looking up."
+description: "Step-by-step tutorials from my projects and cheatsheets for the tools I use every day."
+author: "Md Nazmos Sakib"
+lang: en
+
+# Your GitHub Pages address. Replace YOUR-USERNAME with your GitHub username.
+url: "https://YOUR-USERNAME.github.io"
+# The repository name, with a leading slash. Must match the repo name exactly.
+# Example: repo "cheatsheet-tutorial" -> site lives at https://YOUR-USERNAME.github.io/cheatsheet-tutorial/
+baseurl: "/cheatsheet-tutorial"
+
+# Link to the repo, used for "Edit this page on GitHub" links. Leave empty to hide them.
+repository_url: ""   # e.g. https://github.com/YOUR-USERNAME/cheatsheet-tutorial
+
+# ------------------------------------------------------------------
+# Content types
+# ------------------------------------------------------------------
+collections:
+  tutorials:
+    output: true
+    permalink: /tutorials/:name/
+  cheatsheets:
+    output: true
+    permalink: /cheatsheets/:name/
+
+defaults:
+  - scope: { path: "", type: tutorials }
+    values: { layout: tutorial }
+  - scope: { path: "", type: cheatsheets }
+    values: { layout: cheatsheet }
+  - scope: { path: "" }
+    values: { layout: default }
+
+# ------------------------------------------------------------------
+# Build settings (GitHub Pages compatible — no need to change)
+# ------------------------------------------------------------------
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+exclude:
+  - README.md
+  - templates/
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - .jekyll-cache/

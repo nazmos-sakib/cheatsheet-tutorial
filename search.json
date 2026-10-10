@@ -1,0 +1,21 @@
+---
+layout: null
+permalink: /search.json
+---
+[
+{%- assign first = true -%}
+{%- for doc in site.tutorials -%}
+  {%- unless first -%},{%- endunless -%}{%- assign first = false -%}
+  {"type":"Tutorial","title":{{ doc.title | jsonify }},"url":{{ doc.url | relative_url | jsonify }},"tags":{{ doc.tags | join: " " | jsonify }},"text":{{ doc.description | append: " " | append: doc.content | strip_html | normalize_whitespace | truncatewords: 2000 | jsonify }}}
+{%- endfor -%}
+{%- for doc in site.cheatsheets -%}
+  {%- unless first -%},{%- endunless -%}{%- assign first = false -%}
+  {"type":"Cheatsheet","title":{{ doc.title | jsonify }},"url":{{ doc.url | relative_url | jsonify }},"tags":{{ doc.tags | join: " " | jsonify }},"text":{{ doc.description | jsonify }}}
+  {%- assign sheet = site.data.cheatsheets[doc.sheet] -%}
+  {%- for section in sheet.sections -%}
+    {%- for c in section.commands -%}
+      ,{"type":"Command","title":{{ c.cmd | jsonify }},"url":{{ doc.url | relative_url | append: "#" | append: c.id | jsonify }},"tags":{{ doc.title | jsonify }},"text":{{ c.desc | markdownify | strip_html | strip | jsonify }},"sheet":{{ doc.title | jsonify }}}
+    {%- endfor -%}
+  {%- endfor -%}
+{%- endfor -%}
+]

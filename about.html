@@ -1,0 +1,75 @@
+---
+layout: default
+title: About
+permalink: /about/
+description: Who writes this site, and what I work on.
+body_class: about-page
+---
+{%- assign p = site.data.profile -%}
+<article class="wrap about">
+  <header class="about-head">
+    {%- if p.photo != "" %}<img class="about-photo" src="{{ p.photo | relative_url }}" alt="Portrait of {{ p.name }}" width="160" height="160">{% endif %}
+    <div>
+      <h1>{{ p.name }}</h1>
+      <p class="about-role">{{ p.role }}{% if p.location != "" %}<span class="about-place">, based in {{ p.location }}</span>{% endif %}</p>
+    </div>
+  </header>
+
+  <div class="about-grid">
+    <div class="prose about-intro">
+      {{ p.intro | markdownify }}
+    </div>
+
+    <aside class="about-side">
+      {%- if p.focus.size > 0 %}
+      <h2>Areas I work in</h2>
+      <ul class="plain-list">
+        {%- for f in p.focus %}<li>{{ f }}</li>{% endfor %}
+      </ul>
+      {%- endif %}
+
+      {%- assign has_links = false -%}
+      {%- for l in p.links -%}{%- if l.url != "" -%}{%- assign has_links = true -%}{%- endif -%}{%- endfor -%}
+      {%- if has_links %}
+      <h2>Contact</h2>
+      <ul class="plain-list link-list">
+        {%- for l in p.links -%}{%- if l.url != "" %}
+        <li><a href="{% if l.url contains '://' or l.url contains 'mailto:' %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}">{{ l.label }}</a></li>
+        {%- endif -%}{%- endfor %}
+      </ul>
+      {%- endif %}
+    </aside>
+  </div>
+
+  <section class="timeline-block" aria-labelledby="experience">
+    <h2 id="experience">Experience</h2>
+    <ol class="timeline">
+      {%- for e in p.experience %}
+      <li>
+        <p class="tl-years">{{ e.start }}–{{ e.end }}</p>
+        <div class="tl-body">
+          <h3>{{ e.role }}</h3>
+          <p class="tl-org">{{ e.org }}{% if e.place != "" %}, {{ e.place }}{% endif %}</p>
+          {%- if e.summary != "" %}<div class="tl-summary">{{ e.summary | markdownify }}</div>{% endif %}
+        </div>
+      </li>
+      {%- endfor %}
+    </ol>
+  </section>
+
+  <section class="timeline-block" aria-labelledby="education">
+    <h2 id="education">Education</h2>
+    <ol class="timeline">
+      {%- for e in p.education %}
+      <li>
+        <p class="tl-years">{{ e.start }}–{{ e.end }}</p>
+        <div class="tl-body">
+          <h3>{{ e.degree }}</h3>
+          <p class="tl-org">{{ e.org }}{% if e.place != "" %}, {{ e.place }}{% endif %}</p>
+          {%- if e.summary != "" %}<div class="tl-summary">{{ e.summary | markdownify }}</div>{% endif %}
+        </div>
+      </li>
+      {%- endfor %}
+    </ol>
+  </section>
+</article>

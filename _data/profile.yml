@@ -1,0 +1,61 @@
+# Everything on the About page comes from this file.
+# Edit the text here; the page layout updates on its own.
+# Leave a field empty ("") to hide it.
+
+name: "Md Nazmos Sakib"
+role: "Android & Software Developer"
+location: "Erfurt, Germany"
+photo: ""   # e.g. /assets/img/me.jpg  (put the image in assets/img/)
+
+intro: |
+  I'm an M.Sc. student in computer science and engineering at Hochschule Schmalkalden,
+  currently working on my Master's thesis. Before moving to Germany I spent three years in industrial automation and project engineering in Bangladesh.
+
+  This site is my working notebook. When I set something up, I write down every
+  step so I can do it again, and when I find myself looking up the same command
+  for the third time, it goes into a cheatsheet.
+
+focus:
+  - "Mechatronics and robotics"
+  - "Industrial automation"
+  - "Electrical and electronics engineering"
+  - "Self-hosted backends and developer tooling"
+
+experience:
+  - role: "Project Engineer"
+    org: "Mahiya Enterprise"
+    place: "Bangladesh"
+    start: "2020"
+    end: "2022"
+    summary: ""
+  - role: "Assistant Automation Engineer"
+    org: "Kazi Group Limited"
+    place: "Bangladesh"
+    start: "2019"
+    end: "2020"
+    summary: ""
+
+education:
+  - degree: "M.Sc. Mechatronics and Robotics"
+    org: "Hochschule Schmalkalden"
+    place: "Germany"
+    start: "2022"
+    end: "present"
+    summary: "Master's thesis in progress."
+  - degree: "B.Sc. Electrical and Electronics Engineering"
+    org: "Eastern University"
+    place: "Bangladesh"
+    start: "2015"
+    end: "2019"
+    summary: ""
+
+# Contact links. Empty ones are hidden.
+links:
+  - label: "GitHub"
+    url: ""      # https://github.com/YOUR-USERNAME
+  - label: "LinkedIn"
+    url: ""      # https://www.linkedin.com/in/YOUR-PROFILE
+  - label: "Email"
+    url: ""      # mailto:you@example.com
+  - label: "CV (PDF)"
+    url: ""      # /assets/cv.pdf

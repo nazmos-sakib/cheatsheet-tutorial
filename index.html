@@ -1,0 +1,37 @@
+---
+layout: default
+body_class: home
+---
+<section class="hero">
+  <div class="wrap hero-inner">
+    <h1 class="hero-title">{{ site.tagline }}</h1>
+    <p class="hero-sub">{{ site.description }}</p>
+    <div class="search-box search-box--hero" data-search>
+      <label class="prompt">
+        <span class="prompt-sign" aria-hidden="true">$</span>
+        <span class="visually-hidden">Search tutorials, cheatsheets and commands</span>
+        <input type="search" data-search-input placeholder="search notes and commands" autocomplete="off" spellcheck="false">
+        <kbd class="prompt-hint">/</kbd>
+      </label>
+      <ol class="search-results" data-search-results aria-live="polite"></ol>
+    </div>
+  </div>
+</section>
+
+<div class="wrap home-grid">
+  <section class="home-col" aria-labelledby="latest-tutorials">
+    <div class="col-head">
+      <h2 id="latest-tutorials">Tutorials</h2>
+      <a href="{{ '/tutorials/' | relative_url }}">All tutorials</a>
+    </div>
+    {% include entry-list.html items=site.tutorials kind="tutorial" limit=8 %}
+  </section>
+
+  <section class="home-col home-col--narrow" aria-labelledby="cheatsheets">
+    <div class="col-head">
+      <h2 id="cheatsheets">Cheatsheets</h2>
+      <a href="{{ '/cheatsheets/' | relative_url }}">All cheatsheets</a>
+    </div>
+    {% include entry-list.html items=site.cheatsheets kind="cheatsheet" limit=12 %}
+  </section>
+</div>

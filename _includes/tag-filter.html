@@ -1,0 +1,17 @@
+{%- comment -%}
+  Tag filter chips for an entry list on the same page.
+  Usage: {% include tag-filter.html items=site.tutorials %}
+{%- endcomment -%}
+{%- assign all_tags = "" | split: "" -%}
+{%- for item in include.items -%}
+  {%- for t in item.tags -%}{%- assign all_tags = all_tags | push: t -%}{%- endfor -%}
+{%- endfor -%}
+{%- assign all_tags = all_tags | uniq | sort -%}
+{%- if all_tags.size > 0 -%}
+<div class="tag-filter" role="group" aria-label="Filter by tag" data-tag-filter>
+  <button type="button" class="chip" data-tag="" aria-pressed="true">All</button>
+  {%- for t in all_tags -%}
+  <button type="button" class="chip" data-tag="{{ t | downcase }}" aria-pressed="false">{{ t }}</button>
+  {%- endfor -%}
+</div>
+{%- endif -%}

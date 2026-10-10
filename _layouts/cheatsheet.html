@@ -1,0 +1,48 @@
+---
+layout: default
+body_class: cheatsheet-page
+---
+{%- assign sheet = site.data.cheatsheets[page.sheet] -%}
+<article class="wrap doc">
+  <header class="doc-header">
+    <p class="crumbs"><a href="{{ '/cheatsheets/' | relative_url }}">Cheatsheets</a></p>
+    <h1>{{ page.title }}</h1>
+    {%- if page.description %}<p class="lede">{{ page.description }}</p>{% endif -%}
+    {% include tag-list.html tags=page.tags base="/cheatsheets/" %}
+  </header>
+
+  {%- if content != "" %}
+  <div class="prose sheet-intro">{{ content }}</div>
+  {%- endif %}
+
+  {%- if sheet %}
+  <div class="sheet-filter">
+    <label for="sheet-filter-input">Filter commands</label>
+    <input id="sheet-filter-input" type="search" data-sheet-filter placeholder="type part of a command or what it does" autocomplete="off" spellcheck="false">
+  </div>
+
+  <div class="sheet" data-sheet>
+    {%- for section in sheet.sections %}
+    <section class="sheet-section" data-sheet-section>
+      <h2 id="{{ section.name | slugify }}">{{ section.name }}</h2>
+      {%- if section.note %}<p class="sheet-note">{{ section.note | markdownify | remove: '<p>' | remove: '</p>' | strip }}</p>{% endif %}
+      <dl class="cmd-list">
+        {%- for c in section.commands %}
+        <div class="cmd-row" {% if c.id %}id="{{ c.id }}"{% endif %} data-cmd-row>
+          <dt><code class="cmd">{{ c.cmd | escape }}</code><button class="copy-btn copy-btn--inline" type="button" data-copy="{{ c.cmd | escape }}" aria-label="Copy command">Copy</button></dt>
+          <dd>{{ c.desc | markdownify }}</dd>
+        </div>
+        {%- endfor %}
+      </dl>
+    </section>
+    {%- endfor %}
+    <p class="empty-state" data-sheet-empty hidden>No command matches that. Try a shorter word.</p>
+  </div>
+  {%- else %}
+  <p class="callout callout--warning">No data found. Check that <code>sheet: {{ page.sheet }}</code> matches a file in <code>_data/cheatsheets/</code>.</p>
+  {%- endif %}
+
+  {%- if site.repository_url != "" %}
+  <p class="edit-link"><a href="{{ site.repository_url }}/edit/main/_data/cheatsheets/{{ page.sheet }}.yml">Edit these commands on GitHub</a></p>
+  {%- endif %}
+</article>

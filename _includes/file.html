@@ -1,0 +1,6 @@
+{%- comment -%}
+  A file-name label that attaches to the code block right below it.
+  Usage (put it on the line directly above a ``` code block):
+    {% include file.html name="docker-compose.yml" %}
+{%- endcomment -%}
+<div class="file-label"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 1.5h6l3 3v10h-9z M9.5 1.5v3h3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span>{{ include.name }}</span></div>

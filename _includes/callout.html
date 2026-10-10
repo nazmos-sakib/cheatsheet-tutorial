@@ -1,0 +1,12 @@
+{%- comment -%}
+  A note / tip / warning box.
+  Usage: {% include callout.html type="warning" title="Back up first" text="This deletes the volume." %}
+  type: note (default) | tip | warning
+  text supports Markdown.
+{%- endcomment -%}
+{%- assign type = include.type | default: "note" -%}
+{%- capture default_title -%}{%- case type -%}{%- when "tip" -%}Tip{%- when "warning" -%}Careful{%- else -%}Note{%- endcase -%}{%- endcapture -%}
+<aside class="callout callout--{{ type }}" role="note">
+  <p class="callout-title">{{ include.title | default: default_title }}</p>
+  <div class="callout-body">{{ include.text | markdownify }}</div>
+</aside>
