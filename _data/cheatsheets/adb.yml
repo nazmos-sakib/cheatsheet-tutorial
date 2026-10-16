@@ -1,0 +1,265 @@
+# Commands for the adb cheatsheet.
+# Each section becomes a heading; each command becomes a row with a copy button.
+#   cmd:  the command exactly as you'd type it
+#   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
+#   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
+
+sections:
+  - name: Devices
+    commands:
+      - id: adb-devices
+        cmd: adb devices -l
+        desc: List connected devices and emulators with their serial and model. `unauthorized` means accept the prompt on the phone.
+      - id: adb-select
+        cmd: adb -s SERIAL COMMAND
+        desc: Run a command on one device when several are connected.
+      - id: adb-usb-only
+        cmd: adb -d COMMAND
+        desc: Target the only USB device. `-e` targets the only emulator instead.
+      - id: adb-kill-server
+        cmd: adb kill-server && adb start-server
+        desc: Restart the adb server. Fixes most "device offline" and "no devices" problems.
+      - id: adb-wait
+        cmd: adb wait-for-device
+        desc: Block until a device is connected, handy in scripts after a reboot.
+      - id: adb-reboot
+        cmd: adb reboot
+        desc: Reboot the device. Add `bootloader` or `recovery` to boot into those modes.
+      - id: adb-root
+        cmd: adb root
+        desc: Restart adbd as root. Works on emulators without Play Store and on `userdebug` builds.
+
+  - name: Wireless debugging
+    note: The phone and computer must be on the same network. Android 11+ supports pairing without a cable.
+    commands:
+      - id: adb-pair
+        cmd: adb pair IP:PORT
+        desc: Pair with a device using the code from **Developer options > Wireless debugging > Pair device with pairing code**.
+      - id: adb-connect
+        cmd: adb connect IP:PORT
+        desc: Connect to a paired device over Wi-Fi, using the IP and port shown on the Wireless debugging screen.
+      - id: adb-tcpip
+        cmd: adb tcpip 5555
+        desc: On older Android, switch a USB-connected device to Wi-Fi mode, then unplug and `adb connect IP:5555`.
+      - id: adb-disconnect
+        cmd: adb disconnect
+        desc: Drop all Wi-Fi connections. Add `IP:PORT` to drop just one.
+
+  - name: Install and uninstall
+    commands:
+      - id: adb-install
+        cmd: adb install app.apk
+        desc: Install an APK.
+      - id: adb-install-replace
+        cmd: adb install -r -d app.apk
+        desc: Reinstall over an existing app, keeping its data. `-d` allows a lower version code.
+      - id: adb-install-test
+        cmd: adb install -t app.apk
+        desc: Install an APK marked `testOnly`, which Android Studio sometimes produces.
+      - id: adb-install-grant
+        cmd: adb install -g app.apk
+        desc: Install and grant every runtime permission in the manifest.
+      - id: adb-install-multiple
+        cmd: adb install-multiple base.apk split_config.arm64_v8a.apk
+        desc: Install a base APK together with its split APKs.
+      - id: adb-uninstall
+        cmd: adb uninstall PACKAGE
+        desc: Uninstall an app.
+      - id: adb-uninstall-keep
+        cmd: adb uninstall -k PACKAGE
+        desc: Uninstall but keep the app's data and cache.
+
+  - name: App control
+    commands:
+      - id: adb-launch
+        cmd: adb shell monkey -p PACKAGE 1
+        desc: Launch an app's main activity without knowing its name.
+      - id: adb-start-activity
+        cmd: adb shell am start -n PACKAGE/.MainActivity
+        desc: Start a specific activity. Use the full class name if it isn't in the root package.
+      - id: adb-deeplink
+        cmd: adb shell am start -W -a android.intent.action.VIEW -d "myapp://path" PACKAGE
+        desc: Open a deep link or app link in the app, to test intent filters.
+      - id: adb-force-stop
+        cmd: adb shell am force-stop PACKAGE
+        desc: Force stop an app, like **Settings > Apps > Force stop**.
+      - id: adb-kill
+        cmd: adb shell am kill PACKAGE
+        desc: Kill the app's process only if it's in the background, as the system would to free memory. Good for testing process death.
+      - id: adb-clear-data
+        cmd: adb shell pm clear PACKAGE
+        desc: Wipe an app's data and cache, as if freshly installed.
+      - id: adb-broadcast
+        cmd: adb shell am broadcast -a ACTION -n PACKAGE/.MyReceiver
+        desc: Send a broadcast intent to a receiver.
+      - id: adb-start-service
+        cmd: adb shell am start-foreground-service -n PACKAGE/.MyService
+        desc: Start a service directly. Use `startservice` for a background service.
+      - id: adb-top-activity
+        cmd: adb shell dumpsys activity activities | grep -E "mResumedActivity|topResumedActivity"
+        desc: Show which activity is on screen right now.
+
+  - name: Packages and permissions
+    commands:
+      - id: adb-list-packages
+        cmd: adb shell pm list packages -3
+        desc: List installed third-party apps. Drop `-3` for all, or add a word to filter, such as `pm list packages example`.
+      - id: adb-package-path
+        cmd: adb shell pm path PACKAGE
+        desc: Show where the app's APK lives on the device.
+      - id: adb-pull-apk
+        cmd: 'adb pull $(adb shell pm path PACKAGE | head -1 | cut -d: -f2) app.apk'
+        desc: Copy an installed app's APK to your computer.
+      - id: adb-package-info
+        cmd: adb shell dumpsys package PACKAGE
+        desc: Show version code and name, permissions, activities and install dates for an app.
+      - id: adb-version
+        cmd: adb shell dumpsys package PACKAGE | grep versionName
+        desc: Check which version of an app is installed.
+      - id: adb-grant
+        cmd: adb shell pm grant PACKAGE android.permission.CAMERA
+        desc: Grant a runtime permission. `pm revoke` takes it away again.
+      - id: adb-reset-permissions
+        cmd: adb shell pm reset-permissions
+        desc: Reset runtime permissions for all apps back to "ask".
+
+  - name: Logs
+    commands:
+      - id: adb-logcat
+        cmd: adb logcat
+        desc: Stream the device log. `Ctrl+C` stops it.
+      - id: adb-logcat-clear
+        cmd: adb logcat -c
+        desc: Clear the log buffer so you only see new messages.
+      - id: adb-logcat-app
+        cmd: adb logcat --pid=$(adb shell pidof -s PACKAGE)
+        desc: Show only the log lines from your app's running process.
+      - id: adb-logcat-tag
+        cmd: adb logcat -s TAG
+        desc: Show only messages with a given tag, such as `OkHttp`.
+      - id: adb-logcat-level
+        cmd: adb logcat "*:E"
+        desc: Show only errors. Use `W` for warnings and up, `D` for debug and up.
+      - id: adb-logcat-crash
+        cmd: adb logcat -b crash
+        desc: Show only the crash buffer, with stack traces of recent crashes.
+      - id: adb-logcat-dump
+        cmd: adb logcat -d > log.txt
+        desc: Dump the current log to a file and stop.
+      - id: adb-logcat-format
+        cmd: adb logcat -v color -v time
+        desc: Color the log by level and add timestamps.
+      - id: adb-bugreport
+        cmd: adb bugreport bugreport.zip
+        desc: Save a full bug report (logs, dumpsys, ANR traces) as a zip.
+
+  - name: Files
+    commands:
+      - id: adb-push
+        cmd: adb push FILE /sdcard/
+        desc: Copy a file from your computer to the device.
+      - id: adb-pull
+        cmd: adb pull /sdcard/FILE .
+        desc: Copy a file from the device to the current folder.
+      - id: adb-run-as
+        cmd: adb shell run-as PACKAGE ls files/
+        desc: Browse a debuggable app's private storage without root.
+      - id: adb-pull-db
+        cmd: adb exec-out run-as PACKAGE cat databases/DB_NAME > DB_NAME
+        desc: Copy a debuggable app's database (or any private file) to your computer.
+      - id: adb-pull-prefs
+        cmd: adb shell run-as PACKAGE cat shared_prefs/PREFS.xml
+        desc: Print a debuggable app's SharedPreferences file.
+
+  - name: Screen
+    commands:
+      - id: adb-screenshot
+        cmd: adb exec-out screencap -p > screen.png
+        desc: Take a screenshot straight to your computer.
+      - id: adb-screenrecord
+        cmd: adb shell screenrecord /sdcard/demo.mp4
+        desc: Record the screen (up to 3 minutes). `Ctrl+C` stops, then `adb pull /sdcard/demo.mp4`.
+      - id: adb-wm-size
+        cmd: adb shell wm size
+        desc: Show the screen resolution. `wm size 1080x1920` changes it, `wm size reset` restores it.
+      - id: adb-wm-density
+        cmd: adb shell wm density
+        desc: Show the screen density. `wm density 320` changes it, `wm density reset` restores it.
+      - id: adb-font-scale
+        cmd: adb shell settings put system font_scale 1.5
+        desc: Make the system font bigger to test large text. Set it back to `1.0` afterwards.
+      - id: adb-dark-mode
+        cmd: adb shell cmd uimode night yes
+        desc: Switch dark theme on. Use `no` to switch it off.
+      - id: adb-show-taps
+        cmd: adb shell settings put system show_touches 1
+        desc: Show taps on screen, useful for demo recordings. `0` turns it off.
+      - id: adb-layout-bounds
+        cmd: adb shell setprop debug.layout true && adb shell service call activity 1599295570
+        desc: Show layout bounds without going into Developer options. Set `false` to turn off.
+
+  - name: Input
+    commands:
+      - id: adb-input-text
+        cmd: adb shell input text "hello%sworld"
+        desc: Type text into the focused field. `%s` is a space.
+      - id: adb-input-tap
+        cmd: adb shell input tap X Y
+        desc: Tap the screen at pixel coordinates.
+      - id: adb-input-swipe
+        cmd: adb shell input swipe X1 Y1 X2 Y2 300
+        desc: Swipe from one point to another over 300 ms.
+      - id: adb-keyevent-back
+        cmd: adb shell input keyevent KEYCODE_BACK
+        desc: Press Back. Other useful keys are `KEYCODE_HOME`, `KEYCODE_ENTER` and `KEYCODE_APP_SWITCH`.
+      - id: adb-keyevent-wake
+        cmd: adb shell input keyevent KEYCODE_WAKEUP
+        desc: Wake the screen. `KEYCODE_POWER` toggles it.
+
+  - name: Device info and settings
+    commands:
+      - id: adb-android-version
+        cmd: adb shell getprop ro.build.version.release
+        desc: Show the Android version. Use `ro.build.version.sdk` for the API level.
+      - id: adb-model
+        cmd: adb shell getprop ro.product.model
+        desc: Show the device model name.
+      - id: adb-abi
+        cmd: adb shell getprop ro.product.cpu.abi
+        desc: Show the CPU architecture, such as `arm64-v8a`.
+      - id: adb-battery
+        cmd: adb shell dumpsys battery
+        desc: Show battery level, temperature and charging state.
+      - id: adb-doze
+        cmd: adb shell dumpsys deviceidle force-idle
+        desc: Force the device into Doze mode to test background work. `dumpsys deviceidle unforce` exits it.
+      - id: adb-animations-off
+        cmd: adb shell settings put global animator_duration_scale 0
+        desc: Turn off animator animations, which makes Espresso tests reliable. Do the same for `window_animation_scale` and `transition_animation_scale`.
+      - id: adb-meminfo
+        cmd: adb shell dumpsys meminfo PACKAGE
+        desc: Show how much memory an app is using.
+      - id: adb-gfxinfo
+        cmd: adb shell dumpsys gfxinfo PACKAGE
+        desc: Show frame rendering stats, including janky frames.
+
+  - name: Shell
+    commands:
+      - id: adb-shell
+        cmd: adb shell
+        desc: Open an interactive shell on the device. `exit` leaves it.
+      - id: adb-shell-cmd
+        cmd: adb shell COMMAND
+        desc: Run a single command on the device and return.
+      - id: adb-top
+        cmd: adb shell top -m 10
+        desc: Show the 10 processes using the most CPU.
+      - id: adb-pidof
+        cmd: adb shell pidof PACKAGE
+        desc: Show the process id of a running app.
+      - id: adb-forward
+        cmd: adb forward tcp:8080 tcp:8080
+        desc: Forward a port on your computer to the device.
+      - id: adb-reverse
+        cmd: adb reverse tcp:8080 tcp:8080
+        desc: Let the device reach a server on your computer at `localhost:8080`.

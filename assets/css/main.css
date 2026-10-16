@@ -296,15 +296,34 @@ code, kbd, pre { font-family: var(--mono); }
 .doc-header .tags { margin-top: 0.9rem; }
 .edit-link { margin-top: 3rem; font-size: 0.92rem; }
 
-/* tutorial body + table of contents */
+/* tutorial body: related tutorials (left) + article + table of contents (right) */
 .doc-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
 @media (min-width: 1040px) {
   .doc-body { grid-template-columns: minmax(0, 1fr) 15rem; gap: 4rem; align-items: start; }
   .doc-body .toc { grid-column: 2; grid-row: 1; position: sticky; top: 5rem; }
-  .doc-body .prose { grid-column: 1; grid-row: 1; }
+  .doc-body .prose, .doc-body .sheet-main { grid-column: 1; grid-row: 1; }
+  .doc-body .related { grid-column: 1; grid-row: 2; }
   .toc summary { pointer-events: none; }
   .toc summary::marker, .toc summary::-webkit-details-marker { content: ""; display: none; }
 }
+@media (min-width: 1320px) {
+  .doc-body:has(> .related) { grid-template-columns: 13rem minmax(0, 1fr) 14rem; gap: 3.5rem; }
+  .doc-body .related { grid-column: 1; grid-row: 1; position: sticky; top: 5rem; }
+  .doc-body:has(> .related) .prose { grid-column: 2; }
+  .doc-body:has(> .related) .toc { grid-column: 3; }
+}
+.toc li[hidden] { display: none; }
+
+.related { font-size: 0.9rem; border-top: 1px solid var(--rule); padding-top: 1.5rem; margin-top: 2rem; }
+.related-title { font-size: 0.9rem; font-weight: 650; margin: 0 0 0.6rem; }
+.related ul { list-style: none; margin: 0; padding: 0; }
+.related li { padding: 0.45rem 0 0.45rem 0.8rem; border-left: 2px solid var(--rule); }
+.related li a { color: var(--ink); text-decoration: none; font-weight: 550; line-height: 1.35; display: block; }
+.related li a:hover { color: var(--accent); text-decoration: underline; }
+.related-tags { display: block; margin-top: 0.15rem; font-size: 0.8rem; color: var(--muted); font-family: var(--mono); }
+.related-all { margin: 0.9rem 0 0; }
+.related-all a { color: var(--muted); }
+@media (min-width: 1320px) { .related { border-top: 0; padding-top: 0; margin-top: 0; } }
 .toc { font-size: 0.9rem; border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.8rem 1rem; background: var(--surface); }
 @media (min-width: 1040px) { .toc { border: 0; background: none; padding: 0; } }
 .toc[hidden] { display: none; }
@@ -451,6 +470,8 @@ pre.highlight code { background: none; border: 0; padding: 0; font-size: inherit
 .sheet-section { margin-top: 2.5rem; }
 .sheet-section[hidden] { display: none; }
 .sheet-section h2 { font-size: 1.55rem; }
+/* extra room for the sticky filter bar (on top of scroll-padding-top) when jumping to a section or command */
+.sheet-section h2, .cmd-row { scroll-margin-top: 3.5rem; }
 .sheet-note { color: var(--muted); margin: 0.4rem 0 0; }
 .cmd-list { margin: 1rem 0 0; }
 .cmd-row {
@@ -513,7 +534,7 @@ pre.highlight code { background: none; border: 0; padding: 0; font-size: inherit
 
 /* ---------- print ---------- */
 @media print {
-  .site-header, .site-footer, .toc, .copy-btn, .sheet-filter, .search-dialog { display: none !important; }
+  .site-header, .site-footer, .toc, .related, .copy-btn, .sheet-filter, .search-dialog { display: none !important; }
   body { background: #fff; color: #000; }
   pre.highlight { white-space: pre-wrap; }
 }

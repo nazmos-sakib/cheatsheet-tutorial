@@ -23,6 +23,7 @@ body_class: tutorial-page
     <div class="prose steps" data-steps>
       {{ content }}
     </div>
+    {% include related.html %}
   </div>
 
   {%- if site.repository_url != "" %}

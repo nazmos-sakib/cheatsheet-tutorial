@@ -1,0 +1,323 @@
+# Commands for the Docker Compose cheatsheet.
+# Each section becomes a heading; each command becomes a row with a copy button.
+#   cmd:  the command exactly as you'd type it (multi-line snippets use a `|-` block)
+#   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
+#   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
+
+sections:
+  - name: Start and stop
+    commands:
+      - id: up
+        cmd: docker compose up
+        desc: Create and start every service, showing their logs. Stop with `Ctrl+C`.
+      - id: up-d
+        cmd: docker compose up -d
+        desc: Start every service in the background (detached).
+      - id: up-build
+        cmd: docker compose up -d --build
+        desc: Rebuild images from their Dockerfiles, then start in the background.
+      - id: up-service
+        cmd: docker compose up -d SERVICE
+        desc: Start one service (and the services it depends on).
+      - id: up-force-recreate
+        cmd: docker compose up -d --force-recreate
+        desc: Recreate containers even if nothing in the config changed.
+      - id: stop
+        cmd: docker compose stop
+        desc: Stop the containers but keep them, so `start` brings them back as they were.
+      - id: start
+        cmd: docker compose start
+        desc: Start containers that were stopped with `stop`.
+      - id: restart
+        cmd: docker compose restart SERVICE
+        desc: Restart one service. Does **not** pick up compose-file changes; use `up -d` for that.
+      - id: down
+        cmd: docker compose down
+        desc: Stop and remove the containers and the default network. Volumes are kept.
+      - id: down-v
+        cmd: docker compose down -v
+        desc: Same as `down`, but also deletes named volumes. **Your data in them is gone.**
+      - id: down-rmi
+        cmd: docker compose down --rmi local
+        desc: Stop everything and also remove images that Compose built itself.
+
+  - name: See what is running
+    commands:
+      - id: ps
+        cmd: docker compose ps
+        desc: List this project's containers with their state and ports.
+      - id: ps-a
+        cmd: docker compose ps -a
+        desc: Include stopped and exited containers.
+      - id: ls
+        cmd: docker compose ls
+        desc: List all running Compose projects on this machine.
+      - id: top
+        cmd: docker compose top
+        desc: Show the processes running inside each container.
+      - id: stats
+        cmd: docker stats
+        desc: Live CPU, memory and network use per container. Stop with `Ctrl+C`.
+      - id: port
+        cmd: docker compose port SERVICE 80
+        desc: Show which host port is mapped to container port 80.
+
+  - name: Logs
+    commands:
+      - id: logs
+        cmd: docker compose logs
+        desc: Print the logs of every service.
+      - id: logs-f
+        cmd: docker compose logs -f SERVICE
+        desc: Follow one service's logs live. Stop with `Ctrl+C`.
+      - id: logs-tail
+        cmd: docker compose logs --tail 100 -f
+        desc: Show the last 100 lines, then keep following.
+      - id: logs-since
+        cmd: docker compose logs --since 10m SERVICE
+        desc: Show only the logs from the last 10 minutes.
+
+  - name: Work inside containers
+    commands:
+      - id: exec-sh
+        cmd: docker compose exec SERVICE sh
+        desc: Open a shell in a running container. Use `bash` instead of `sh` if the image has it.
+      - id: exec-cmd
+        cmd: docker compose exec SERVICE ls -la /app
+        desc: Run a single command in a running container.
+      - id: exec-root
+        cmd: docker compose exec -u root SERVICE sh
+        desc: Open a shell as root, even if the image runs as another user.
+      - id: run-rm
+        cmd: docker compose run --rm SERVICE COMMAND
+        desc: Start a fresh, one-off container for a task (e.g. a migration) and remove it afterwards.
+      - id: cp-out
+        cmd: docker compose cp SERVICE:/path/in/container ./local
+        desc: Copy a file or folder out of a container.
+      - id: cp-in
+        cmd: docker compose cp ./local SERVICE:/path/in/container
+        desc: Copy a file or folder into a container.
+
+  - name: Images and builds
+    commands:
+      - id: pull
+        cmd: docker compose pull
+        desc: Download the latest versions of the images named in the file.
+      - id: update
+        cmd: docker compose pull && docker compose up -d
+        desc: Update to newer images and recreate only the containers whose image changed.
+      - id: build
+        cmd: docker compose build
+        desc: Build (or rebuild) the images for services that have a `build:` section.
+      - id: build-no-cache
+        cmd: docker compose build --no-cache SERVICE
+        desc: Rebuild one image from scratch, ignoring cached layers.
+      - id: images
+        cmd: docker compose images
+        desc: List the images used by this project's containers.
+
+  - name: Config and files
+    commands:
+      - id: config
+        cmd: docker compose config
+        desc: Print the final config with variables filled in. Great for spotting typos.
+      - id: config-quiet
+        cmd: docker compose config -q
+        desc: Only check the file is valid; prints nothing if it is.
+      - id: file-flag
+        cmd: docker compose -f FILE up -d
+        desc: Use a compose file with a different name or location.
+      - id: override
+        cmd: docker compose -f compose.yaml -f compose.prod.yaml up -d
+        desc: Layer a second file on top of the first; later files override earlier ones.
+      - id: project-name
+        cmd: docker compose -p NAME up -d
+        desc: Set the project name (defaults to the folder name), e.g. to run two copies side by side.
+      - id: env-file
+        cmd: docker compose --env-file .env.prod up -d
+        desc: Read variables from a different `.env` file.
+      - id: profile
+        cmd: docker compose --profile debug up -d
+        desc: "Also start services tagged with `profiles: [debug]`."
+
+  - name: Clean up
+    note: These are plain `docker` commands and affect the whole machine, not only this project.
+    commands:
+      - id: prune-system
+        cmd: docker system prune
+        desc: Remove stopped containers, unused networks, dangling images and build cache.
+      - id: prune-images
+        cmd: docker image prune -a
+        desc: Remove every image no container is using. Frees the most disk space.
+      - id: prune-volumes
+        cmd: docker volume prune
+        desc: Remove volumes no container is using. **Check first, this deletes data.**
+      - id: df
+        cmd: docker system df
+        desc: Show how much disk space images, containers and volumes use.
+
+  - name: "Compose file: basics"
+    note: Snippets for `compose.yaml`. Indentation matters; use spaces, never tabs.
+    commands:
+      - id: file-minimal
+        cmd: |-
+          services:
+            web:
+              image: nginx:latest
+              ports:
+                - "8080:80"
+        desc: A minimal file with one service, reachable on `http://localhost:8080`.
+      - id: file-build
+        cmd: |-
+          services:
+            app:
+              build: .
+        desc: Build the image from the `Dockerfile` in the same folder instead of pulling one.
+      - id: file-build-context
+        cmd: |-
+          build:
+            context: ./app
+            dockerfile: Dockerfile.dev
+            args:
+              NODE_VERSION: "20"
+        desc: Build from another folder, with a custom Dockerfile name and build arguments.
+      - id: file-container-name
+        cmd: "container_name: my-app"
+        desc: Give the container a fixed name instead of `project-service-1`.
+      - id: file-ports
+        cmd: |-
+          ports:
+            - "8080:80"
+            - "127.0.0.1:5432:5432"
+        desc: Map `HOST:CONTAINER` ports. Prefixing `127.0.0.1` keeps the port off your network.
+      - id: file-command
+        cmd: 'command: ["npm", "run", "dev"]'
+        desc: Override the image's default command.
+      - id: file-working-dir
+        cmd: "working_dir: /app"
+        desc: Set the folder commands run in inside the container.
+      - id: file-user
+        cmd: 'user: "1000:1000"'
+        desc: Run the container as a specific user and group ID.
+
+  - name: "Compose file: environment"
+    commands:
+      - id: file-environment
+        cmd: |-
+          environment:
+            TZ: Europe/London
+            DEBUG: "true"
+        desc: Set environment variables inside the container. Quote `true`, `yes` and numbers.
+      - id: file-env-file
+        cmd: |-
+          env_file:
+            - .env
+        desc: Load variables from a file into the container.
+      - id: file-interpolation
+        cmd: 'image: "postgres:${PG_VERSION:-16}"'
+        desc: Use a variable from your shell or `.env`, with a default after `:-`.
+      - id: file-required-var
+        cmd: 'POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}'
+        desc: Stop with an error message if the variable is missing.
+
+  - name: "Compose file: storage"
+    commands:
+      - id: file-bind-mount
+        cmd: |-
+          volumes:
+            - ./site:/usr/share/nginx/html:ro
+        desc: Mount a folder from your machine into the container (`:ro` makes it read-only).
+      - id: file-named-volume
+        cmd: |-
+          services:
+            db:
+              image: postgres:16
+              volumes:
+                - db-data:/var/lib/postgresql/data
+          volumes:
+            db-data:
+        desc: Keep data in a named volume managed by Docker, so it survives `down`.
+      - id: file-tmpfs
+        cmd: |-
+          tmpfs:
+            - /tmp
+        desc: Mount an in-memory folder that is wiped when the container stops.
+
+  - name: "Compose file: startup and health"
+    commands:
+      - id: file-restart
+        cmd: "restart: unless-stopped"
+        desc: Restart the container after crashes and reboots, unless you stopped it yourself.
+      - id: file-depends-on
+        cmd: |-
+          depends_on:
+            - db
+        desc: Start `db` before this service. Does not wait for it to be ready.
+      - id: file-depends-healthy
+        cmd: |-
+          depends_on:
+            db:
+              condition: service_healthy
+        desc: Wait until `db` passes its healthcheck before starting this service.
+      - id: file-healthcheck
+        cmd: |-
+          healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        desc: Tell Docker how to check the service is actually working.
+      - id: file-profiles
+        cmd: 'profiles: ["debug"]'
+        desc: Only start this service when its profile is enabled with `--profile debug`.
+
+  - name: "Compose file: networks and limits"
+    commands:
+      - id: file-networks
+        cmd: |-
+          services:
+            app:
+              networks: [backend]
+          networks:
+            backend:
+        desc: Put services on a custom network. Services reach each other by service name, e.g. `db:5432`.
+      - id: file-external-network
+        cmd: |-
+          networks:
+            proxy:
+              external: true
+        desc: Join a network created outside this file (e.g. shared with a reverse proxy).
+      - id: file-extra-hosts
+        cmd: |-
+          extra_hosts:
+            - "host.docker.internal:host-gateway"
+        desc: Let the container reach services on the host machine by name (needed on Linux).
+      - id: file-limits
+        cmd: |-
+          deploy:
+            resources:
+              limits:
+                cpus: "0.5"
+                memory: 512M
+        desc: Cap the CPU and memory a container can use.
+      - id: file-logging
+        cmd: |-
+          logging:
+            options:
+              max-size: "10m"
+              max-file: "3"
+        desc: Rotate logs so they don't fill the disk.
+
+  - name: One-off containers (docker run)
+    note: Plain `docker run` commands for quick jobs, no compose file needed.
+    commands:
+      - id: run-npm-install
+        cmd: |-
+          sudo docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp \
+            --mount "type=bind,source=$PWD/parse,target=/app" \
+            --workdir /app \
+            node:24-bookworm-slim \
+            sh -c 'npm init -y && npm install --save-exact parse-server@latest express@5 @parse/fs-files-adapter@latest'
+        desc: Create a Node project in `./parse` and install Parse Server, Express 5 and the file adapter, without installing Node on your machine. The files end up owned by you. [Full explanation](../../tutorials/install-npm-packages-with-docker/)

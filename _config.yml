@@ -16,6 +16,9 @@ baseurl: "/cheatsheet-tutorial"
 # Link to the repo, used for "Edit this page on GitHub" links. Leave empty to hide them.
 repository_url: ""   # e.g. https://github.com/YOUR-USERNAME/cheatsheet-tutorial
 
+# How many "More tutorials" links to show beside each tutorial.
+related_limit: 5
+
 # ------------------------------------------------------------------
 # Content types
 # ------------------------------------------------------------------
@@ -55,3 +58,5 @@ exclude:
   - Gemfile.lock
   - vendor/
   - .jekyll-cache/
+  - compose.yaml
+  - docker/

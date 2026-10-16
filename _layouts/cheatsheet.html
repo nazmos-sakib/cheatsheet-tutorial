@@ -11,6 +11,14 @@ body_class: cheatsheet-page
     {% include tag-list.html tags=page.tags base="/cheatsheets/" %}
   </header>
 
+  <div class="doc-body">
+    {%- if sheet %}
+    <details class="toc" data-toc open>
+      <summary>On this page</summary>
+      <nav aria-label="On this page"><ol data-toc-list></ol></nav>
+    </details>
+    {%- endif %}
+    <div class="sheet-main" data-steps data-toc-deep>
   {%- if content != "" %}
   <div class="prose sheet-intro">{{ content }}</div>
   {%- endif %}
@@ -41,6 +49,8 @@ body_class: cheatsheet-page
   {%- else %}
   <p class="callout callout--warning">No data found. Check that <code>sheet: {{ page.sheet }}</code> matches a file in <code>_data/cheatsheets/</code>.</p>
   {%- endif %}
+    </div>
+  </div>
 
   {%- if site.repository_url != "" %}
   <p class="edit-link"><a href="{{ site.repository_url }}/edit/main/_data/cheatsheets/{{ page.sheet }}.yml">Edit these commands on GitHub</a></p>

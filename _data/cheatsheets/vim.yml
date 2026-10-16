@@ -1,0 +1,318 @@
+# Keys and commands for the vim cheatsheet.
+# Each section becomes a heading; each command becomes a row with a copy button.
+#   cmd:  the keys or command exactly as you'd type them
+#   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
+#   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
+
+sections:
+  - name: Open vim
+    commands:
+      - id: vim-open
+        cmd: vim FILE
+        desc: Open a file, or create it when you save if it doesn't exist yet.
+      - id: vim-sudo
+        cmd: sudo vim /etc/FILE
+        desc: Edit a system file that needs root, such as anything in `/etc`.
+      - id: vim-line
+        cmd: vim +LINE FILE
+        desc: Open a file with the cursor on line `LINE`.
+      - id: vim-readonly
+        cmd: view FILE
+        desc: Open read-only (same as `vim -R`).
+      - id: vim-diff
+        cmd: vimdiff FILE1 FILE2
+        desc: Show two files side by side with the differences highlighted.
+      - id: vim-tutor
+        cmd: vimtutor
+        desc: A 30-minute hands-on lesson that teaches the basics inside vim.
+
+  - name: Save and quit
+    commands:
+      - id: vim-write
+        cmd: ":w"
+        desc: Save the file.
+      - id: vim-write-quit
+        cmd: ":wq"
+        desc: Save and quit. `:x` or `ZZ` do the same, but only write if something changed.
+      - id: vim-quit
+        cmd: ":q"
+        desc: Quit. Refuses if there are unsaved changes.
+      - id: vim-quit-force
+        cmd: ":q!"
+        desc: Quit and throw away unsaved changes. `ZQ` does the same.
+      - id: vim-write-as
+        cmd: ":w FILE"
+        desc: Save a copy under a new name.
+      - id: vim-write-sudo
+        cmd: ":w !sudo tee %"
+        desc: Save a file you opened without `sudo` but need root to write. Press `L` to reload it after.
+      - id: vim-quit-all
+        cmd: ":qa"
+        desc: Quit every open window and file. Add `!` to discard changes.
+      - id: vim-reload
+        cmd: ":e!"
+        desc: Throw away your changes and reload the file from disk.
+
+  - name: Modes
+    commands:
+      - id: vim-insert
+        cmd: i
+        desc: Insert text before the cursor.
+      - id: vim-append
+        cmd: a
+        desc: Insert text after the cursor.
+      - id: vim-insert-line-start
+        cmd: I
+        desc: Insert at the start of the line.
+      - id: vim-append-line-end
+        cmd: A
+        desc: Insert at the end of the line.
+      - id: vim-open-below
+        cmd: o
+        desc: Open a new line below and start typing.
+      - id: vim-open-above
+        cmd: O
+        desc: Open a new line above and start typing.
+      - id: vim-normal
+        cmd: Esc
+        desc: Go back to Normal mode from any other mode. `Ctrl+[` does the same.
+      - id: vim-visual
+        cmd: v
+        desc: Visual mode, to select characters. Move to extend, then act on the selection.
+      - id: vim-visual-line
+        cmd: V
+        desc: Visual line mode, to select whole lines.
+      - id: vim-visual-block
+        cmd: Ctrl+V
+        desc: Visual block mode, to select a column. `I` then text then `Esc` types on every line.
+      - id: vim-replace-mode
+        cmd: R
+        desc: Replace mode, where typing overwrites the existing text.
+
+  - name: Move around
+    commands:
+      - id: vim-hjkl
+        cmd: h j k l
+        desc: Left, down, up, right. The arrow keys also work.
+      - id: vim-word
+        cmd: w / b
+        desc: Forward to the start of the next word, or back to the start of the previous one.
+      - id: vim-word-end
+        cmd: e
+        desc: Forward to the end of the word.
+      - id: vim-line-start
+        cmd: "0"
+        desc: Start of the line. `^` goes to the first non-blank character.
+      - id: vim-line-end
+        cmd: $
+        desc: End of the line.
+      - id: vim-top
+        cmd: gg
+        desc: First line of the file.
+      - id: vim-bottom
+        cmd: G
+        desc: Last line of the file.
+      - id: vim-goto-line
+        cmd: ":LINE"
+        desc: Go to line `LINE`, for example `:42`. `42G` does the same.
+      - id: vim-page
+        cmd: Ctrl+D / Ctrl+U
+        desc: Scroll down or up half a screen. `Ctrl+F` and `Ctrl+B` move a full screen.
+      - id: vim-find-char
+        cmd: f CHAR
+        desc: Jump to the next `CHAR` on the line. `;` repeats it, `t CHAR` stops just before it.
+      - id: vim-match
+        cmd: "%"
+        desc: Jump to the matching bracket, brace or parenthesis.
+      - id: vim-paragraph
+        cmd: "{ / }"
+        desc: Jump to the previous or next blank line (paragraph).
+      - id: vim-center
+        cmd: zz
+        desc: Scroll so the cursor's line is in the middle of the screen.
+      - id: vim-jump-back
+        cmd: Ctrl+O / Ctrl+I
+        desc: Jump back to where you were before a big move, or forward again.
+
+  - name: Edit text
+    note: These work in Normal mode.
+    commands:
+      - id: vim-undo
+        cmd: u
+        desc: Undo the last change.
+      - id: vim-redo
+        cmd: Ctrl+R
+        desc: Redo what you just undid.
+      - id: vim-repeat
+        cmd: .
+        desc: Repeat the last change. Very handy after `cw`, `dd` or `A`.
+      - id: vim-delete-char
+        cmd: x
+        desc: Delete the character under the cursor.
+      - id: vim-replace-char
+        cmd: r CHAR
+        desc: Replace the character under the cursor with `CHAR`.
+      - id: vim-join
+        cmd: J
+        desc: Join the next line onto this one.
+      - id: vim-case
+        cmd: "~"
+        desc: Switch the case of the character under the cursor.
+      - id: vim-indent
+        cmd: ">> / <<"
+        desc: Indent or unindent the line. In Visual mode, `>` and `<` shift the selection.
+      - id: vim-autoindent
+        cmd: gg=G
+        desc: Re-indent the whole file.
+
+  - name: Delete, change and copy
+    note: Combine an action with a motion, for example `dw` deletes a word and `c$` changes to the end of the line.
+    commands:
+      - id: vim-dd
+        cmd: dd
+        desc: Delete (cut) the whole line. `3dd` cuts 3 lines.
+      - id: vim-dw
+        cmd: dw
+        desc: Delete from the cursor to the start of the next word.
+      - id: vim-D
+        cmd: D
+        desc: Delete from the cursor to the end of the line.
+      - id: vim-cw
+        cmd: cw
+        desc: Change the rest of the word. Deletes it and puts you in Insert mode.
+      - id: vim-cc
+        cmd: cc
+        desc: Change the whole line.
+      - id: vim-ciw
+        cmd: ciw
+        desc: Change the whole word under the cursor, wherever the cursor is in it.
+      - id: vim-ci-quote
+        cmd: ci"
+        desc: Change the text inside the quotes. Also works with `(`, `[`, `{` and `'`.
+      - id: vim-yy
+        cmd: yy
+        desc: Copy (yank) the whole line.
+      - id: vim-yiw
+        cmd: yiw
+        desc: Copy the word under the cursor.
+      - id: vim-paste
+        cmd: p / P
+        desc: Paste after or before the cursor (below or above for whole lines).
+      - id: vim-visual-ops
+        cmd: d / y / c
+        desc: In Visual mode, cut, copy or change the selection.
+      - id: vim-system-clipboard
+        cmd: '"+y / "+p'
+        desc: Copy to or paste from the system clipboard, when vim is built with clipboard support.
+
+  - name: Search and replace
+    commands:
+      - id: vim-search
+        cmd: /TEXT
+        desc: Search forward for `TEXT`. Press `Enter`, then `n` for the next match and `N` for the previous.
+      - id: vim-search-back
+        cmd: ?TEXT
+        desc: Search backward for `TEXT`.
+      - id: vim-search-word
+        cmd: "*"
+        desc: Search for the word under the cursor. `#` searches backward.
+      - id: vim-no-highlight
+        cmd: ":noh"
+        desc: Clear the search highlighting.
+      - id: vim-substitute-line
+        cmd: ":s/OLD/NEW/g"
+        desc: Replace every `OLD` with `NEW` on the current line.
+      - id: vim-substitute-all
+        cmd: ":%s/OLD/NEW/g"
+        desc: Replace every `OLD` with `NEW` in the whole file.
+      - id: vim-substitute-confirm
+        cmd: ":%s/OLD/NEW/gc"
+        desc: Same, but ask before each one. `y` replaces, `n` skips, `a` does the rest.
+      - id: vim-substitute-ignorecase
+        cmd: ":%s/OLD/NEW/gi"
+        desc: Replace in the whole file, ignoring upper and lower case.
+      - id: vim-global-delete
+        cmd: ":g/TEXT/d"
+        desc: Delete every line that contains `TEXT`. `:v/TEXT/d` deletes the lines that don't.
+
+  - name: Files, buffers and windows
+    commands:
+      - id: vim-edit
+        cmd: ":e FILE"
+        desc: Open another file in the same window.
+      - id: vim-buffers
+        cmd: ":ls"
+        desc: List open files (buffers). `:b NUMBER` switches to one.
+      - id: vim-buffer-next
+        cmd: ":bn / :bp"
+        desc: Switch to the next or previous open file.
+      - id: vim-split
+        cmd: ":sp FILE"
+        desc: Split the window horizontally and open a file. `:vsp FILE` splits vertically.
+      - id: vim-window-move
+        cmd: Ctrl+W h/j/k/l
+        desc: Move to the window on the left, below, above or right. `Ctrl+W w` cycles through them.
+      - id: vim-window-close
+        cmd: Ctrl+W q
+        desc: Close the current window.
+      - id: vim-tab-new
+        cmd: ":tabnew FILE"
+        desc: Open a file in a new tab. `gt` and `gT` switch tabs.
+      - id: vim-explore
+        cmd: ":Ex"
+        desc: Browse the folder of the current file and pick a file to open.
+      - id: vim-shell
+        cmd: ":!COMMAND"
+        desc: Run a shell command without leaving vim, for example `:!ls`.
+      - id: vim-read-command
+        cmd: ":r !COMMAND"
+        desc: Insert the output of a shell command below the cursor.
+
+  - name: Macros and marks
+    commands:
+      - id: vim-macro-record
+        cmd: qa
+        desc: Start recording a macro into register `a`. Press `q` again to stop.
+      - id: vim-macro-play
+        cmd: "@a"
+        desc: Play back macro `a`. `@@` repeats the last one, `10@a` runs it 10 times.
+      - id: vim-mark-set
+        cmd: ma
+        desc: Set mark `a` at the cursor.
+      - id: vim-mark-jump
+        cmd: "'a"
+        desc: Jump to the line of mark `a`. Use a backtick instead of `'` for the exact spot.
+      - id: vim-registers
+        cmd: ":reg"
+        desc: Show everything you've cut, copied and recorded.
+
+  - name: Settings
+    note: Type these in Normal mode for this session, or put them in `~/.vimrc` without the leading `:` to keep them.
+    commands:
+      - id: vimrc-number
+        cmd: ":set number"
+        desc: Show line numbers. `:set relativenumber` counts from the cursor line instead.
+      - id: vimrc-syntax
+        cmd: ":syntax on"
+        desc: Turn on syntax highlighting.
+      - id: vimrc-paste
+        cmd: ":set paste"
+        desc: Paste text from outside vim without it being auto-indented. `:set nopaste` turns it off.
+      - id: vimrc-tabs
+        cmd: ":set expandtab tabstop=4 shiftwidth=4"
+        desc: Insert 4 spaces when you press `Tab` and indent by 4. Handy for YAML and Python.
+      - id: vimrc-search
+        cmd: ":set ignorecase smartcase"
+        desc: Search ignoring case, unless you type a capital letter.
+      - id: vimrc-hlsearch
+        cmd: ":set hlsearch incsearch"
+        desc: Highlight every match, and jump to matches as you type.
+      - id: vimrc-mouse
+        cmd: ":set mouse=a"
+        desc: Click to place the cursor, select text and scroll with the mouse.
+      - id: vimrc-list
+        cmd: ":set list"
+        desc: Show tabs and line ends, to spot stray whitespace. `:set nolist` hides them.
+      - id: vim-help
+        cmd: ":help TOPIC"
+        desc: Open vim's built-in help on a topic, for example `:help :s`. `:q` closes it.

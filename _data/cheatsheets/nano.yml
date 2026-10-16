@@ -1,0 +1,193 @@
+# Shortcuts and commands for the nano cheatsheet.
+# Each section becomes a heading; each command becomes a row with a copy button.
+#   cmd:  the shortcut or command exactly as you'd type it
+#   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
+#   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
+
+sections:
+  - name: Open nano
+    commands:
+      - id: nano-open
+        cmd: nano FILE
+        desc: Open a file, or create it when you save if it doesn't exist yet.
+      - id: nano-sudo
+        cmd: sudo nano /etc/FILE
+        desc: Edit a system file that needs root, such as anything in `/etc`.
+      - id: nano-line
+        cmd: nano +LINE FILE
+        desc: Open a file with the cursor on line `LINE`.
+      - id: nano-line-numbers
+        cmd: nano -l FILE
+        desc: Show line numbers down the left side.
+      - id: nano-view
+        cmd: nano -v FILE
+        desc: Open read-only, so you can't change the file by accident.
+      - id: nano-backup
+        cmd: nano -B FILE
+        desc: Keep a backup of the original as `FILE~` when you save.
+
+  - name: Save and exit
+    commands:
+      - id: nano-save
+        cmd: Ctrl+O
+        desc: Save (write out). Press `Enter` to keep the file name, or type a new one.
+      - id: nano-exit
+        cmd: Ctrl+X
+        desc: Exit. If there are unsaved changes, press `Y` to save, `N` to discard, `Ctrl+C` to stay.
+      - id: nano-save-quick
+        cmd: Ctrl+S
+        desc: Save straight away without asking for the file name (nano 4 and newer).
+      - id: nano-insert-file
+        cmd: Ctrl+R
+        desc: Insert another file's contents at the cursor.
+      - id: nano-cancel
+        cmd: Ctrl+C
+        desc: Cancel the prompt or action in progress. Outside a prompt, shows the cursor position.
+      - id: nano-help
+        cmd: Ctrl+G
+        desc: Open nano's built-in help with every shortcut. `Ctrl+X` closes it.
+
+  - name: Move around
+    commands:
+      - id: nano-goto
+        cmd: Ctrl+_
+        desc: Go to a line number (and optionally a column, as `LINE,COL`). `Alt+G` also works.
+      - id: nano-line-start
+        cmd: Ctrl+A
+        desc: Jump to the start of the line. `Home` does the same.
+      - id: nano-line-end
+        cmd: Ctrl+E
+        desc: Jump to the end of the line. `End` does the same.
+      - id: nano-page-up
+        cmd: Ctrl+Y
+        desc: Scroll up one screen. `Page Up` does the same.
+      - id: nano-page-down
+        cmd: Ctrl+V
+        desc: Scroll down one screen. `Page Down` does the same.
+      - id: nano-top
+        cmd: Alt+\
+        desc: Jump to the first line of the file.
+      - id: nano-bottom
+        cmd: Alt+/
+        desc: Jump to the last line of the file.
+      - id: nano-word
+        cmd: Ctrl+Right / Ctrl+Left
+        desc: Move one word forward or back.
+      - id: nano-bracket
+        cmd: Alt+]
+        desc: Jump to the matching bracket, brace or parenthesis.
+
+  - name: Cut, copy and paste
+    commands:
+      - id: nano-cut
+        cmd: Ctrl+K
+        desc: Cut the whole current line (or the marked text). Press again to add more lines to the cut.
+      - id: nano-paste
+        cmd: Ctrl+U
+        desc: Paste what you last cut or copied at the cursor.
+      - id: nano-copy
+        cmd: Alt+6
+        desc: Copy the current line (or the marked text) without removing it.
+      - id: nano-mark
+        cmd: Alt+A
+        desc: Start selecting text from the cursor. Move to extend it, then cut or copy. `Ctrl+6` also works.
+      - id: nano-cut-to-end
+        cmd: Alt+T
+        desc: Cut from the cursor to the end of the file.
+      - id: nano-delete-word
+        cmd: Ctrl+Delete
+        desc: Delete the word to the right of the cursor.
+
+  - name: Search and replace
+    commands:
+      - id: nano-search
+        cmd: Ctrl+W
+        desc: Search forward. Type the text and press `Enter`.
+      - id: nano-search-back
+        cmd: Ctrl+Q
+        desc: Search backward.
+      - id: nano-search-next
+        cmd: Alt+W
+        desc: Find the next match of the last search.
+      - id: nano-search-prev
+        cmd: Alt+Q
+        desc: Find the previous match.
+      - id: nano-replace
+        cmd: Ctrl+\
+        desc: Search and replace. For each match, press `Y` to replace, `N` to skip, `A` to replace all.
+      - id: nano-search-case
+        cmd: Alt+C
+        desc: At the search prompt, toggle case-sensitive matching.
+      - id: nano-search-regex
+        cmd: Alt+R
+        desc: At the search prompt, toggle regular-expression matching.
+
+  - name: Edit text
+    commands:
+      - id: nano-undo
+        cmd: Alt+U
+        desc: Undo the last change.
+      - id: nano-redo
+        cmd: Alt+E
+        desc: Redo what you just undid.
+      - id: nano-indent
+        cmd: Alt+}
+        desc: Indent the current line (or the marked lines). `Tab` also works on a selection.
+      - id: nano-unindent
+        cmd: Alt+{
+        desc: Unindent the current line (or the marked lines). `Shift+Tab` also works on a selection.
+      - id: nano-comment
+        cmd: Alt+3
+        desc: Comment or uncomment the current line (or the marked lines), using the file type's comment sign.
+      - id: nano-justify
+        cmd: Ctrl+J
+        desc: Rewrap the current paragraph to fit the screen width.
+      - id: nano-verbatim
+        cmd: Alt+V
+        desc: Type the next key literally, for example a real `Tab` character.
+
+  - name: Display and tools
+    commands:
+      - id: nano-toggle-line-numbers
+        cmd: Alt+N
+        desc: Turn line numbers on or off.
+      - id: nano-toggle-wrap
+        cmd: Alt+S
+        desc: Turn soft wrapping of long lines on or off.
+      - id: nano-toggle-whitespace
+        cmd: Alt+P
+        desc: Show or hide tabs and trailing spaces.
+      - id: nano-word-count
+        cmd: Alt+D
+        desc: Count the lines, words and characters in the file (or the marked text).
+      - id: nano-spell
+        cmd: Ctrl+T
+        desc: Run the spell checker. In nano 5 and newer this opens the command prompt; press `Ctrl+T` again there to spell check.
+      - id: nano-suspend
+        cmd: Ctrl+Z
+        desc: Put nano in the background to use the shell. Type `fg` to come back. Needs `set suspendable` or `nano -z` on older versions.
+
+  - name: Settings file
+    note: Put these lines in `~/.nanorc` to make them the default every time nano opens.
+    commands:
+      - id: nanorc-linenumbers
+        cmd: set linenumbers
+        desc: Always show line numbers.
+      - id: nanorc-mouse
+        cmd: set mouse
+        desc: Click to place the cursor and select text with the mouse.
+      - id: nanorc-tabsize
+        cmd: set tabsize 4
+        desc: Show a tab as 4 spaces wide.
+      - id: nanorc-tabstospaces
+        cmd: set tabstospaces
+        desc: Insert spaces when you press `Tab`. Handy for YAML and Python.
+      - id: nanorc-autoindent
+        cmd: set autoindent
+        desc: Start a new line at the same indentation as the one above.
+      - id: nanorc-softwrap
+        cmd: set softwrap
+        desc: Wrap long lines on screen without changing the file.
+      - id: nanorc-syntax
+        cmd: include "/usr/share/nano/*.nanorc"
+        desc: Turn on syntax highlighting for every language nano ships with.

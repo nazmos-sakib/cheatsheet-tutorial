@@ -87,7 +87,9 @@
   if (toc) {
     var list = toc.querySelector('[data-toc-list]');
     var body = document.querySelector('[data-steps]');
-    var heads = body ? body.querySelectorAll(':scope > h2, :scope > h3') : [];
+    // Tutorials list their own h2/h3 steps; cheatsheets (data-toc-deep) list each section's h2, unnumbered
+    var deep = body && body.hasAttribute('data-toc-deep');
+    var heads = body ? body.querySelectorAll(deep ? 'h2' : ':scope > h2, :scope > h3') : [];
     var links = [];
     var step = 0;
 
@@ -100,7 +102,7 @@
         li.className = 'toc-sub';
         a.textContent = h.textContent;
       } else {
-        if (!h.classList.contains('no-step')) {
+        if (!deep && !h.classList.contains('no-step')) {
           step += 1;
           var n = document.createElement('span');
           n.className = 'toc-num';
@@ -127,7 +129,7 @@
         ticking = false;
         var best = links[0].link;
         links.forEach(function (item) {
-          if (item.head.getBoundingClientRect().top < window.innerHeight * 0.35) best = item.link;
+          if (item.head.offsetParent && item.head.getBoundingClientRect().top < window.innerHeight * 0.35) best = item.link;
         });
         if (active === best) return;
         if (active) active.removeAttribute('aria-current');
@@ -193,6 +195,10 @@
           if (show) count += 1;
         });
         sec.hidden = count === 0;
+        // Hide the matching "On this page" entry while its section is filtered out
+        var h = sec.querySelector('h2');
+        var tocLink = h && document.querySelector('[data-toc-list] a[href="#' + h.id + '"]');
+        if (tocLink) tocLink.parentNode.hidden = sec.hidden;
         total += count;
       });
       if (sheetEmpty) sheetEmpty.hidden = total > 0;

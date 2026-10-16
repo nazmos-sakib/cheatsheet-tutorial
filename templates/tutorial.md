@@ -1,7 +1,8 @@
 ---
 title: Your tutorial title
 description: One sentence on what this sets up and why.
-tags: [tag-one, tag-two]
+tags: [tag-one, tag-two]   # tutorials sharing tags are suggested under "More tutorials"
+# related: [other-file-name]   # optional: pick the "More tutorials" list yourself
 tested_on: "OS / tool versions you used"
 time: "30 minutes"
 updated: 2026-01-01

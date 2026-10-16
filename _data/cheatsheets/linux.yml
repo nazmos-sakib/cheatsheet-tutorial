@@ -1,0 +1,365 @@
+# Commands for the Linux cheatsheet.
+# Each section becomes a heading; each command becomes a row with a copy button.
+#   cmd:  the command exactly as you'd type it
+#   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
+#   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
+
+sections:
+  - name: Move around
+    commands:
+      - id: pwd
+        cmd: pwd
+        desc: Print the folder you are in.
+      - id: ls
+        cmd: ls -lah
+        desc: List files with sizes, permissions and hidden files.
+      - id: cd
+        cmd: cd DIR
+        desc: Go into a folder.
+      - id: cd-up
+        cmd: cd ..
+        desc: Go up one folder.
+      - id: cd-home
+        cmd: cd ~
+        desc: Go to your home folder.
+      - id: cd-back
+        cmd: cd -
+        desc: Jump back to the previous folder.
+
+  - name: Files and folders
+    commands:
+      - id: mkdir
+        cmd: mkdir -p path/to/DIR
+        desc: Create a folder, including any missing parent folders.
+      - id: touch
+        cmd: touch FILE
+        desc: Create an empty file, or update its timestamp.
+      - id: cp
+        cmd: cp FILE COPY
+        desc: Copy a file.
+      - id: cp-r
+        cmd: cp -r DIR COPY
+        desc: Copy a folder and everything in it.
+      - id: mv
+        cmd: mv OLD NEW
+        desc: Move or rename a file or folder.
+      - id: rm
+        cmd: rm FILE
+        desc: Delete a file. There is no trash, it is gone.
+      - id: rm-r
+        cmd: rm -r DIR
+        desc: Delete a folder and everything in it. **Double-check the path.**
+      - id: ln-s
+        cmd: ln -s TARGET LINK
+        desc: Create a shortcut (symbolic link) to a file or folder.
+
+  - name: Read files
+    commands:
+      - id: cat
+        cmd: cat FILE
+        desc: Print a whole file.
+      - id: less
+        cmd: less FILE
+        desc: Scroll through a file. `/` to search, `q` to quit.
+      - id: head
+        cmd: head -n 20 FILE
+        desc: Show the first 20 lines.
+      - id: tail
+        cmd: tail -n 50 FILE
+        desc: Show the last 50 lines.
+      - id: tail-f
+        cmd: tail -f FILE
+        desc: Follow a file live as lines are added, handy for logs.
+      - id: wc
+        cmd: wc -l FILE
+        desc: Count the lines in a file.
+      - id: diff
+        cmd: diff FILE1 FILE2
+        desc: Show the differences between two files.
+      - id: nano
+        cmd: nano FILE
+        desc: Edit a file in the terminal. `Ctrl+O` saves, `Ctrl+X` exits.
+
+  - name: Search
+    commands:
+      - id: find-name
+        cmd: find . -name "*.log"
+        desc: Find files by name under the current folder.
+      - id: grep-r
+        cmd: grep -rn "TEXT" DIR
+        desc: Search for text inside every file in a folder, with line numbers.
+      - id: grep-i
+        cmd: grep -i "TEXT" FILE
+        desc: Search a file for text, ignoring upper/lower case.
+      - id: which
+        cmd: which COMMAND
+        desc: Show where a program is installed.
+
+  - name: Permissions and users
+    commands:
+      - id: chmod-x
+        cmd: chmod +x script.sh
+        desc: Make a file executable.
+      - id: chmod-num
+        cmd: chmod 644 FILE
+        desc: Set permissions by number (`644` = owner read/write, others read).
+      - id: chown
+        cmd: chown -R USER:GROUP DIR
+        desc: Change who owns a file or folder.
+      - id: sudo
+        cmd: sudo COMMAND
+        desc: Run one command as the administrator (root).
+      - id: whoami
+        cmd: whoami
+        desc: Show which user you are logged in as.
+      - id: passwd
+        cmd: passwd
+        desc: Change your password.
+
+  - name: Processes
+    commands:
+      - id: top
+        cmd: htop
+        desc: Live view of CPU, memory and running programs. Use `top` if htop isn't installed.
+      - id: ps
+        cmd: ps aux | grep NAME
+        desc: Find a running program and its PID.
+      - id: kill
+        cmd: kill PID
+        desc: Ask a process to stop.
+      - id: kill-9
+        cmd: kill -9 PID
+        desc: Force a stuck process to stop.
+      - id: pkill
+        cmd: pkill NAME
+        desc: Stop processes by name instead of PID.
+      - id: background
+        cmd: COMMAND &
+        desc: Run a command in the background.
+      - id: nohup
+        cmd: nohup COMMAND &
+        desc: Keep a command running after you log out.
+
+  - name: System info
+    commands:
+      - id: uname
+        cmd: uname -a
+        desc: Show kernel version and machine type.
+      - id: os-release
+        cmd: cat /etc/os-release
+        desc: Show which Linux distribution and version this is.
+      - id: df
+        cmd: df -h
+        desc: Show free disk space on each drive.
+      - id: du
+        cmd: du -sh *
+        desc: Show how much space each item in the current folder uses.
+      - id: free
+        cmd: free -h
+        desc: Show used and free memory (RAM).
+      - id: uptime
+        cmd: uptime
+        desc: Show how long the system has been running and its load.
+      - id: lsblk
+        cmd: lsblk
+        desc: List disks and partitions.
+
+  - name: Networking
+    commands:
+      - id: ip-a
+        cmd: ip a
+        desc: Show network interfaces and IP addresses.
+      - id: hostname-i
+        cmd: hostname -I
+        desc: Print just this machine's IP address(es).
+      - id: ip-route-get
+        cmd: ip -4 route get 1.1.1.1
+        desc: Show which interface, gateway and local IP your internet traffic uses.
+      - id: ping
+        cmd: ping -c 4 example.com
+        desc: Check if a host is reachable.
+      - id: curl
+        cmd: curl -O URL
+        desc: Download a file into the current folder.
+      - id: curl-i
+        cmd: curl -I URL
+        desc: Show only the HTTP headers of a URL.
+      - id: ss
+        cmd: sudo ss -tulpn
+        desc: List open ports and which program is listening on each.
+      - id: lsof-port
+        cmd: lsof -i tcp:8080
+        desc: Show which program is using port 8080. Add `sudo` to see other users' programs.
+      - id: ssh
+        cmd: ssh USER@HOST
+        desc: Log in to another machine.
+      - id: scp
+        cmd: scp FILE USER@HOST:/path/
+        desc: Copy a file to another machine over SSH.
+      - id: rsync
+        cmd: rsync -avz DIR/ USER@HOST:/path/
+        desc: Sync a folder to another machine, copying only what changed.
+
+  - name: Archives
+    commands:
+      - id: tar-create
+        cmd: tar -czvf archive.tar.gz DIR
+        desc: Pack a folder into a compressed `.tar.gz`.
+      - id: tar-extract
+        cmd: tar -xzvf archive.tar.gz
+        desc: Unpack a `.tar.gz` into the current folder.
+      - id: zip
+        cmd: zip -r archive.zip DIR
+        desc: Pack a folder into a `.zip`.
+      - id: unzip
+        cmd: unzip archive.zip
+        desc: Unpack a `.zip`.
+
+  - name: Packages
+    note: For Debian-based systems such as Ubuntu and Raspberry Pi OS.
+    commands:
+      - id: apt-update
+        cmd: sudo apt update
+        desc: Refresh the list of available packages.
+      - id: apt-upgrade
+        cmd: sudo apt upgrade
+        desc: Install updates for everything already installed.
+      - id: apt-install
+        cmd: sudo apt install PACKAGE
+        desc: Install a package.
+      - id: apt-remove
+        cmd: sudo apt remove PACKAGE
+        desc: Uninstall a package.
+      - id: apt-search
+        cmd: apt search NAME
+        desc: Search for a package by name.
+
+  - name: Services and logs
+    commands:
+      - id: systemctl-status
+        cmd: systemctl status SERVICE
+        desc: Check whether a service is running.
+      - id: systemctl-restart
+        cmd: sudo systemctl restart SERVICE
+        desc: Restart a service. Use `start` or `stop` the same way.
+      - id: systemctl-enable
+        cmd: sudo systemctl enable SERVICE
+        desc: Start a service automatically at boot.
+      - id: systemctl-daemon-reload
+        cmd: sudo systemctl daemon-reload
+        desc: Reload service files after you add or edit one, so systemd sees the change.
+      - id: journalctl
+        cmd: journalctl -u SERVICE -f
+        desc: Follow a service's logs live.
+      - id: reboot
+        cmd: sudo reboot
+        desc: Restart the machine.
+      - id: shutdown
+        cmd: sudo shutdown now
+        desc: Turn the machine off.
+
+  - name: Shell tricks
+    commands:
+      - id: pipe
+        cmd: COMMAND1 | COMMAND2
+        desc: Send one command's output into another.
+      - id: redirect
+        cmd: COMMAND > FILE
+        desc: Save output to a file, replacing its contents. Use `>>` to append.
+      - id: redirect-stderr-null
+        cmd: COMMAND 2>/dev/null
+        desc: Hide error messages and keep the normal output.
+      - id: redirect-all-null
+        cmd: COMMAND > /dev/null 2>&1
+        desc: Hide all output, both normal output and errors.
+      - id: redirect-stderr-file
+        cmd: COMMAND 2> errors.log
+        desc: Save only the error messages to a file.
+      - id: redirect-all-file
+        cmd: COMMAND > out.log 2>&1
+        desc: Save normal output and errors together in one file.
+      - id: tee
+        cmd: COMMAND | tee FILE
+        desc: Show output on screen and save it to a file at the same time. `tee -a` appends.
+      - id: stdin-file
+        cmd: COMMAND < FILE
+        desc: Feed a file into a command as its input.
+      - id: history
+        cmd: history
+        desc: List the commands you ran before. `Ctrl+R` searches them.
+      - id: sudo-bang
+        cmd: sudo !!
+        desc: Run the last command again with sudo.
+      - id: man
+        cmd: man COMMAND
+        desc: Open the manual for a command. `q` to quit.
+      - id: alias
+        cmd: alias ll='ls -lah'
+        desc: Create a shortcut for a long command (add it to `~/.bashrc` to keep it).
+      - id: clear
+        cmd: clear
+        desc: Clear the screen. `Ctrl+L` does the same.
+
+  - name: Handy combinations
+    note: Small command chains for everyday jobs.
+    commands:
+      - id: heredoc-note
+        cmd: |-
+          cat << EOF > notes.txt
+          Your text here,
+          as many lines as you like.
+          EOF
+        desc: Quick note. Writes everything up to the closing `EOF` line into a file. Use `>>` instead of `>` to append.
+      - id: read-input
+        cmd: |-
+          read -r -p "Enter your name: " name
+          echo "Hello, $name!"
+        desc: Ask for input, store it in a variable, then use it. Handy in scripts.
+      - id: append-line
+        cmd: echo "Hello World" >> FILE
+        desc: Add a line to the end of a file.
+      - id: prepend-line
+        cmd: echo "Hello World" | cat - FILE > temp && mv temp FILE
+        desc: Add a line to the top of a file.
+      - id: backup-copy
+        cmd: cp FILE{,.bak}
+        desc: Make a quick backup copy named `FILE.bak`.
+      - id: mkdir-cd
+        cmd: mkdir -p DIR && cd DIR
+        desc: Create a folder and go into it.
+      - id: free-port
+        cmd: kill $(lsof -t -i tcp:8080)
+        desc: Stop whatever program is using port 8080.
+      - id: history-grep
+        cmd: history | grep TEXT
+        desc: Find a command you ran before.
+      - id: biggest-items
+        cmd: du -sh * | sort -h
+        desc: List items in the current folder by size, biggest last.
+      - id: big-files
+        cmd: find . -type f -size +100M
+        desc: Find files bigger than 100 MB.
+      - id: newest-files
+        cmd: ls -t | head
+        desc: Show the 10 most recently changed files.
+      - id: count-files
+        cmd: find . -type f | wc -l
+        desc: Count all files in this folder and below.
+      - id: top-memory
+        cmd: ps aux --sort=-%mem | head
+        desc: Show the programs using the most memory.
+      - id: log-errors
+        cmd: tail -f FILE | grep -i error
+        desc: Watch a log live and show only lines containing "error".
+      - id: count-repeats
+        cmd: sort FILE | uniq -c | sort -nr
+        desc: Count repeated lines, most frequent first.
+      - id: watch
+        cmd: watch -n 2 COMMAND
+        desc: Re-run a command every 2 seconds and show the result.
+      - id: apt-update-upgrade
+        cmd: sudo apt update && sudo apt upgrade -y
+        desc: Refresh and install all updates in one go.
+      - id: replace-in-files
+        cmd: grep -rl "OLD" . | xargs sed -i 's/OLD/NEW/g'
+        desc: Replace text in every file that contains it. On macOS use `sed -i ''`.

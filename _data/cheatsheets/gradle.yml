@@ -1,0 +1,193 @@
+# Commands for the Gradle cheatsheet.
+# Each section becomes a heading; each command becomes a row with a copy button.
+#   cmd:  the command exactly as you'd type it
+#   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
+#   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
+
+sections:
+  - name: Basics
+    commands:
+      - id: gradle-tasks
+        cmd: ./gradlew tasks
+        desc: List the main tasks you can run in this project.
+      - id: gradle-tasks-all
+        cmd: ./gradlew tasks --all
+        desc: List every task, including the ones from each module and plugin.
+      - id: gradle-version
+        cmd: ./gradlew --version
+        desc: Show the Gradle, Kotlin, JVM and OS versions the wrapper is using.
+      - id: gradle-help-task
+        cmd: ./gradlew help --task TASK
+        desc: Explain a task, with its options and which module it belongs to.
+      - id: gradle-projects
+        cmd: ./gradlew projects
+        desc: List all modules (subprojects) in the build.
+      - id: gradle-chmod
+        cmd: chmod +x gradlew
+        desc: Fix `Permission denied` when running `./gradlew` on macOS or Linux.
+
+  - name: Build
+    commands:
+      - id: gradle-assemble-debug
+        cmd: ./gradlew assembleDebug
+        desc: Build a debug APK. It lands in `app/build/outputs/apk/debug/`.
+      - id: gradle-assemble-release
+        cmd: ./gradlew assembleRelease
+        desc: Build a release APK, signed if a signing config is set up.
+      - id: gradle-bundle-release
+        cmd: ./gradlew bundleRelease
+        desc: Build a release App Bundle (`.aab`) for Google Play, in `app/build/outputs/bundle/release/`.
+      - id: gradle-build
+        cmd: ./gradlew build
+        desc: Assemble every variant and run all checks and unit tests. Slow; use it before a release or in CI.
+      - id: gradle-module-assemble
+        cmd: ./gradlew :MODULE:assembleDebug
+        desc: Build only one module, such as `:app` or `:core:data`.
+      - id: gradle-clean
+        cmd: ./gradlew clean
+        desc: Delete the `build` folders so the next build starts from scratch.
+      - id: gradle-clean-build
+        cmd: ./gradlew clean assembleDebug
+        desc: Clean, then build. Run several tasks in one go by listing them.
+
+  - name: Install and run
+    note: These need a device or emulator connected; check with `adb devices`.
+    commands:
+      - id: gradle-install-debug
+        cmd: ./gradlew installDebug
+        desc: Build the debug APK and install it on the connected device.
+      - id: gradle-install-release
+        cmd: ./gradlew installRelease
+        desc: Build and install the release APK. Needs a signing config.
+      - id: gradle-uninstall-all
+        cmd: ./gradlew uninstallAll
+        desc: Uninstall every variant of the app from the connected device.
+      - id: gradle-install-launch
+        cmd: ./gradlew installDebug && adb shell monkey -p PACKAGE 1
+        desc: Install the debug build, then launch it straight away.
+
+  - name: Test
+    commands:
+      - id: gradle-test
+        cmd: ./gradlew test
+        desc: Run local unit tests (`src/test`) for every variant.
+      - id: gradle-test-debug
+        cmd: ./gradlew testDebugUnitTest
+        desc: Run unit tests for the debug variant only. Faster than `test`.
+      - id: gradle-test-class
+        cmd: ./gradlew testDebugUnitTest --tests "com.example.CLASS"
+        desc: Run one test class. Add `.methodName` for a single test, or use `*` as a wildcard.
+      - id: gradle-connected-test
+        cmd: ./gradlew connectedAndroidTest
+        desc: Run instrumented tests (`src/androidTest`) on the connected device or emulator.
+      - id: gradle-connected-test-class
+        cmd: ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.CLASS
+        desc: Run one instrumented test class on the device.
+      - id: gradle-rerun-tests
+        cmd: ./gradlew test --rerun-tasks
+        desc: Force tests to run again even when Gradle thinks they're up to date.
+      - id: gradle-test-report
+        cmd: open app/build/reports/tests/testDebugUnitTest/index.html
+        desc: Open the HTML test report (macOS; use `xdg-open` on Linux).
+
+  - name: Code quality
+    commands:
+      - id: gradle-lint
+        cmd: ./gradlew lint
+        desc: Run Android Lint. The report goes to `app/build/reports/lint-results-debug.html`.
+      - id: gradle-lint-debug
+        cmd: ./gradlew lintDebug
+        desc: Lint only the debug variant, which is quicker.
+      - id: gradle-lint-fix
+        cmd: ./gradlew lintFix
+        desc: Apply the safe fixes Lint suggests automatically.
+      - id: gradle-check
+        cmd: ./gradlew check
+        desc: Run all verification tasks (lint, unit tests and any plugins such as detekt or ktlint).
+      - id: gradle-ktlint
+        cmd: ./gradlew ktlintFormat
+        desc: Format Kotlin code, if the ktlint Gradle plugin is applied. `ktlintCheck` only reports.
+      - id: gradle-detekt
+        cmd: ./gradlew detekt
+        desc: Run detekt static analysis, if the detekt plugin is applied.
+
+  - name: Dependencies
+    commands:
+      - id: gradle-deps
+        cmd: ./gradlew :app:dependencies
+        desc: Print the full dependency tree of the `app` module for every configuration.
+      - id: gradle-deps-runtime
+        cmd: ./gradlew :app:dependencies --configuration debugRuntimeClasspath
+        desc: Show only what ends up in the debug app. Much shorter than the full tree.
+      - id: gradle-dep-insight
+        cmd: ./gradlew :app:dependencyInsight --dependency LIBRARY --configuration debugRuntimeClasspath
+        desc: Explain why a library is included and which version won a conflict.
+      - id: gradle-refresh-deps
+        cmd: ./gradlew build --refresh-dependencies
+        desc: Re-download dependencies and ignore the cached copies, e.g. after a broken `SNAPSHOT`.
+      - id: gradle-buildenv
+        cmd: ./gradlew buildEnvironment
+        desc: List the plugins and classpath used by the build scripts themselves.
+
+  - name: Signing and app info
+    commands:
+      - id: gradle-signing-report
+        cmd: ./gradlew signingReport
+        desc: Show the SHA-1 and SHA-256 of each signing key, needed for Firebase, Google Sign-In and Maps.
+      - id: gradle-source-sets
+        cmd: ./gradlew :app:sourceSets
+        desc: List the source folders Gradle uses for each variant.
+      - id: gradle-keytool
+        cmd: keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android
+        desc: Print the debug key's fingerprints without Gradle.
+
+  - name: Speed and troubleshooting
+    commands:
+      - id: gradle-stop
+        cmd: ./gradlew --stop
+        desc: Stop all running Gradle daemons. Try this first when a build hangs or acts strangely.
+      - id: gradle-status
+        cmd: ./gradlew --status
+        desc: Show the Gradle daemons that are running and what they're doing.
+      - id: gradle-stacktrace
+        cmd: ./gradlew assembleDebug --stacktrace
+        desc: Print the full stack trace when a build fails. `--info` or `--debug` give even more log.
+      - id: gradle-scan
+        cmd: ./gradlew assembleDebug --scan
+        desc: Upload a build scan with timings and errors, and get a link to view it in the browser.
+      - id: gradle-offline
+        cmd: ./gradlew assembleDebug --offline
+        desc: Build without the network, using only cached dependencies.
+      - id: gradle-parallel
+        cmd: ./gradlew assembleDebug --parallel --build-cache
+        desc: Build modules in parallel and reuse outputs from earlier builds.
+      - id: gradle-config-cache
+        cmd: ./gradlew assembleDebug --configuration-cache
+        desc: Cache the configuration phase so repeated builds start faster.
+      - id: gradle-dry-run
+        cmd: ./gradlew assembleDebug --dry-run
+        desc: Show which tasks would run, in order, without running them.
+      - id: gradle-exclude-task
+        cmd: ./gradlew build -x lint -x test
+        desc: Run a task but skip the ones named with `-x`.
+      - id: gradle-continue
+        cmd: ./gradlew check --continue
+        desc: Keep going after a task fails, so you see every failure in one run.
+      - id: gradle-property
+        cmd: ./gradlew assembleDebug -PNAME=VALUE
+        desc: Pass a project property, read in the build script with `providers.gradleProperty("NAME")`.
+      - id: gradle-clear-cache
+        cmd: rm -rf ~/.gradle/caches/
+        desc: Delete Gradle's global cache when it's corrupted. The next build re-downloads everything.
+
+  - name: Gradle wrapper
+    commands:
+      - id: gradle-wrapper-update
+        cmd: ./gradlew wrapper --gradle-version VERSION
+        desc: Upgrade the project's Gradle version, such as `8.10`. Run it twice to update the wrapper scripts too.
+      - id: gradle-wrapper-latest
+        cmd: ./gradlew wrapper --gradle-version latest
+        desc: Upgrade to the newest released Gradle version.
+      - id: gradle-wrapper-props
+        cmd: cat gradle/wrapper/gradle-wrapper.properties
+        desc: Check which Gradle version the project uses (the `distributionUrl` line).

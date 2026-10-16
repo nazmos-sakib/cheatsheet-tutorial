@@ -1,0 +1,58 @@
+{%- comment -%}
+  "More tutorials" list for the side of a tutorial page. Nothing to fill in by hand:
+  every other tutorial is ranked by how many tags it shares with this page,
+  newest first when tied.
+
+  To pick the list yourself for one tutorial, add to its front matter:
+    related: [ssh-key-configuration-on-pi, systemd-mount-ssd-at-boot]
+  (file names in _tutorials/, without .md)
+
+  How many to show: related_limit in _config.yml (default 5).
+{%- endcomment -%}
+{%- assign limit = site.related_limit | default: 5 -%}
+{%- assign picks = "" | split: "" -%}
+
+{%- if page.related and page.related.size > 0 -%}
+  {%- for name in page.related -%}
+    {%- assign wanted = "/tutorials/" | append: name | append: "/" -%}
+    {%- assign doc = site.tutorials | where: "url", wanted | first -%}
+    {%- if doc and doc.url != page.url -%}{%- assign picks = picks | push: doc -%}{%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- comment -%} Build "score~date~url" keys, sort them, read them back highest first. {%- endcomment -%}
+  {%- assign keys = "" -%}
+  {%- for doc in site.tutorials -%}
+    {%- if doc.url == page.url -%}{%- continue -%}{%- endif -%}
+    {%- assign score = 100 -%}
+    {%- for tag in doc.tags -%}
+      {%- if page.tags contains tag -%}{%- assign score = score | plus: 1 -%}{%- endif -%}
+    {%- endfor -%}
+    {%- assign when = doc.updated | default: doc.date | date: "%Y%m%d" -%}
+    {%- assign keys = keys | append: score | append: "~" | append: when | append: "~" | append: doc.url | append: "|" -%}
+  {%- endfor -%}
+  {%- assign keys = keys | split: "|" | sort | reverse -%}
+  {%- for key in keys limit: limit -%}
+    {%- assign wanted = key | split: "~" | last -%}
+    {%- assign doc = site.tutorials | where: "url", wanted | first -%}
+    {%- assign picks = picks | push: doc -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if picks.size > 0 %}
+<nav class="related" aria-labelledby="related-title">
+  <h2 id="related-title" class="related-title">More tutorials</h2>
+  <ul>
+    {%- for doc in picks limit: limit %}
+    <li>
+      <a href="{{ doc.url | relative_url }}">{{ doc.title }}</a>
+      {%- assign shared = "" | split: "" -%}
+      {%- for tag in doc.tags -%}{%- if page.tags contains tag -%}{%- assign shared = shared | push: tag -%}{%- endif -%}{%- endfor -%}
+      {%- if shared.size > 0 %}
+      <span class="related-tags">{{ shared | join: " · " }}</span>
+      {%- endif %}
+    </li>
+    {%- endfor %}
+  </ul>
+  <p class="related-all"><a href="{{ '/tutorials/' | relative_url }}">All tutorials</a></p>
+</nav>
+{%- endif -%}
