@@ -476,7 +476,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8080/this-page-does-no
 
 To see nginx's log as requests come in (stop with `Ctrl+C`):
 
-{% include cmd.html sheet="docker-compose" id="logs-f" %}
+{% include cmd.html sheet="docker" id="logs-f" %}
 
 Use `web` as the service name: `docker compose logs -f web`.
 
@@ -786,7 +786,7 @@ Both containers should be `Up`, and `https://notes.example.com` should open agai
 
 Things worth doing now and then, or knowing about:
 
-- **See what's happening.** `docker compose logs --tail 50 web` shows recent visits (with real visitor IPs thanks to the nginx setting); `docker compose logs --tail 50 tunnel` shows the connector. `docker stats` shows CPU and memory per container. The [Docker Compose cheatsheet]({{ '/cheatsheets/docker-compose/' | relative_url }}) has the rest.
+- **See what's happening.** `docker compose logs --tail 50 web` shows recent visits (with real visitor IPs thanks to the nginx setting); `docker compose logs --tail 50 tunnel` shows the connector. `docker stats` shows CPU and memory per container. The [Docker and Docker Compose cheatsheet]({{ '/cheatsheets/docker/' | relative_url }}) has the rest.
 - **Update the base images.** The `nginx:stable-alpine`, `ruby:3.3` and `cloudflared` images get security fixes. Once a month:
 
   ```bash

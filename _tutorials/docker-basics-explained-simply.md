@@ -259,7 +259,7 @@ services:
     restart: unless-stopped
 ```
 
-Run it with `docker compose up -d`. The [Docker Compose cheatsheet]({{ '/cheatsheets/docker-compose/' | relative_url }}) has the rest.
+Run it with `docker compose up -d`. The [Docker and Docker Compose cheatsheet]({{ '/cheatsheets/docker/' | relative_url }}) has the rest.
 
 ## What the flags mean
 {: .no-step}

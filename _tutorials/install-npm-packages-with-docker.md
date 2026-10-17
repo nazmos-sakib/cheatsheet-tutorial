@@ -9,7 +9,7 @@ updated: 2026-10-14
 
 This one command creates a new Node.js project in a local `parse` folder and installs Parse Server, Express 5 and the Parse file storage adapter. npm runs inside a temporary Docker container, but every file it creates lands in your own folder, owned by you.
 
-{% include cmd.html sheet="docker-compose" id="run-npm-install" %}
+{% include cmd.html sheet="docker" id="run-npm-install" %}
 
 You need Docker installed, and a `parse` folder in the directory you run the command from:
 

@@ -1,11 +1,123 @@
-# Commands for the Docker Compose cheatsheet.
+# Commands for the Docker and Docker Compose cheatsheet.
 # Each section becomes a heading; each command becomes a row with a copy button.
 #   cmd:  the command exactly as you'd type it (multi-line snippets use a `|-` block)
 #   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
 #   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
 
 sections:
-  - name: Start and stop
+  - name: "Docker: containers"
+    note: Plain `docker` commands work on any container on the machine, whether Compose started it or not.
+    commands:
+      - id: docker-ps
+        cmd: docker ps
+        desc: Show all running containers.
+      - id: docker-ps-a
+        cmd: docker ps -a
+        desc: Show all containers, including stopped ones.
+      - id: docker-run
+        cmd: docker run -d --name NAME -p 8080:80 IMAGE
+        desc: Start a new container in the background, named `NAME`, with host port 8080 mapped to container port 80.
+      - id: docker-run-it
+        cmd: docker run -it --rm IMAGE sh
+        desc: Start a throwaway container with an interactive shell; it is removed when you exit.
+      - id: docker-stop
+        cmd: docker stop CONTAINER
+        desc: Stop a running container (by name or ID).
+      - id: docker-start
+        cmd: docker start CONTAINER
+        desc: Start a stopped container again.
+      - id: docker-restart
+        cmd: docker restart CONTAINER
+        desc: Stop and start a container.
+      - id: docker-rm
+        cmd: docker rm CONTAINER
+        desc: Delete a stopped container. Add `-f` to stop and delete a running one.
+      - id: docker-logs
+        cmd: docker logs -f --tail 100 CONTAINER
+        desc: Show a container's last 100 log lines and keep following. Stop with `Ctrl+C`.
+      - id: docker-exec
+        cmd: docker exec -it CONTAINER sh
+        desc: Open a shell inside a running container. Use `bash` if the image has it.
+      - id: docker-inspect
+        cmd: docker inspect CONTAINER
+        desc: Inspect a specific container; prints its full config, IP address, mounts and state as JSON.
+      - id: docker-inspect-ip
+        cmd: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' CONTAINER"
+        desc: Print only the container's IP address.
+      - id: stats
+        cmd: docker stats
+        desc: Live CPU, memory and network use per container. Stop with `Ctrl+C`.
+
+  - name: "Docker: images"
+    commands:
+      - id: docker-images
+        cmd: docker images
+        desc: List the images downloaded or built on this machine.
+      - id: docker-pull
+        cmd: docker pull IMAGE:TAG
+        desc: Download an image, e.g. `docker pull nginx:stable-alpine`.
+      - id: docker-build
+        cmd: docker build -t NAME:TAG .
+        desc: Build an image from the `Dockerfile` in the current folder and give it a name.
+      - id: docker-tag
+        cmd: docker tag NAME:TAG USER/NAME:TAG
+        desc: Give an image a second name, e.g. before pushing it to Docker Hub.
+      - id: docker-push
+        cmd: docker push USER/NAME:TAG
+        desc: Upload an image to a registry. Run `docker login` first.
+      - id: docker-rmi
+        cmd: docker rmi IMAGE
+        desc: Delete an image that no container uses.
+
+  - name: "Docker: volumes and networks"
+    commands:
+      - id: docker-volume-ls
+        cmd: docker volume ls
+        desc: List volumes. Compose names them `PROJECT_VOLUME`.
+      - id: docker-volume-inspect
+        cmd: docker volume inspect VOLUME
+        desc: Show where a volume's data lives on the host.
+      - id: docker-volume-rm
+        cmd: docker volume rm VOLUME
+        desc: Delete a volume. **Its data is gone.**
+      - id: docker-network-ls
+        cmd: docker network ls
+        desc: List networks, including the ones Compose created.
+      - id: docker-network-inspect
+        cmd: docker network inspect NETWORK
+        desc: Show which containers are on a network and their IP addresses.
+
+  - name: "Docker: one-off jobs"
+    note: Plain `docker run` commands for quick jobs, no compose file needed.
+    commands:
+      - id: run-npm-install
+        cmd: |-
+          sudo docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp \
+            --mount "type=bind,source=$PWD/parse,target=/app" \
+            --workdir /app \
+            node:24-bookworm-slim \
+            sh -c 'npm init -y && npm install --save-exact parse-server@latest express@5 @parse/fs-files-adapter@latest'
+        desc: Create a Node project in `./parse` and install Parse Server, Express 5 and the file adapter, without installing Node on your machine. The files end up owned by you. [Full explanation](../../tutorials/install-npm-packages-with-docker/)
+
+  - name: "Docker: clean up"
+    note: These are plain `docker` commands and affect the whole machine, not only this project.
+    commands:
+      - id: prune-system
+        cmd: docker system prune
+        desc: Remove stopped containers, unused networks, dangling images and build cache.
+      - id: prune-images
+        cmd: docker image prune -a
+        desc: Remove every image no container is using. Frees the most disk space.
+      - id: prune-volumes
+        cmd: docker volume prune
+        desc: Remove volumes no container is using. **Check first, this deletes data.**
+      - id: df
+        cmd: docker system df
+        desc: Show how much disk space images, containers and volumes use.
+
+  - name: "Compose: start and stop"
     commands:
       - id: up
         cmd: docker compose up
@@ -41,35 +153,32 @@ sections:
         cmd: docker compose down --rmi local
         desc: Stop everything and also remove images that Compose built itself.
 
-  - name: See what is running
+  - name: "Compose: see what is running"
     commands:
       - id: ps
         cmd: docker compose ps
-        desc: List this project's containers with their state and ports.
+        desc: Show the running containers in the current Compose project, with their state and ports.
       - id: ps-a
         cmd: docker compose ps -a
-        desc: Include stopped and exited containers.
+        desc: Show all containers in the current Compose project, including stopped ones.
       - id: ls
         cmd: docker compose ls
         desc: List all running Compose projects on this machine.
       - id: top
         cmd: docker compose top
         desc: Show the processes running inside each container.
-      - id: stats
-        cmd: docker stats
-        desc: Live CPU, memory and network use per container. Stop with `Ctrl+C`.
       - id: port
         cmd: docker compose port SERVICE 80
         desc: Show which host port is mapped to container port 80.
 
-  - name: Logs
+  - name: "Compose: logs"
     commands:
       - id: logs
         cmd: docker compose logs
         desc: Print the logs of every service.
       - id: logs-f
-        cmd: docker compose logs -f SERVICE
-        desc: Follow one service's logs live. Stop with `Ctrl+C`.
+        cmd: docker compose logs -f
+        desc: Follow the logs of every service live. Add a `SERVICE` name to follow just one. Stop with `Ctrl+C`.
       - id: logs-tail
         cmd: docker compose logs --tail 100 -f
         desc: Show the last 100 lines, then keep following.
@@ -77,7 +186,7 @@ sections:
         cmd: docker compose logs --since 10m SERVICE
         desc: Show only the logs from the last 10 minutes.
 
-  - name: Work inside containers
+  - name: "Compose: work inside containers"
     commands:
       - id: exec-sh
         cmd: docker compose exec SERVICE sh
@@ -98,7 +207,7 @@ sections:
         cmd: docker compose cp ./local SERVICE:/path/in/container
         desc: Copy a file or folder into a container.
 
-  - name: Images and builds
+  - name: "Compose: images and builds"
     commands:
       - id: pull
         cmd: docker compose pull
@@ -116,7 +225,7 @@ sections:
         cmd: docker compose images
         desc: List the images used by this project's containers.
 
-  - name: Config and files
+  - name: "Compose: config and files"
     commands:
       - id: config
         cmd: docker compose config
@@ -139,22 +248,6 @@ sections:
       - id: profile
         cmd: docker compose --profile debug up -d
         desc: "Also start services tagged with `profiles: [debug]`."
-
-  - name: Clean up
-    note: These are plain `docker` commands and affect the whole machine, not only this project.
-    commands:
-      - id: prune-system
-        cmd: docker system prune
-        desc: Remove stopped containers, unused networks, dangling images and build cache.
-      - id: prune-images
-        cmd: docker image prune -a
-        desc: Remove every image no container is using. Frees the most disk space.
-      - id: prune-volumes
-        cmd: docker volume prune
-        desc: Remove volumes no container is using. **Check first, this deletes data.**
-      - id: df
-        cmd: docker system df
-        desc: Show how much disk space images, containers and volumes use.
 
   - name: "Compose file: basics"
     note: Snippets for `compose.yaml`. Indentation matters; use spaces, never tabs.
@@ -307,17 +400,3 @@ sections:
               max-size: "10m"
               max-file: "3"
         desc: Rotate logs so they don't fill the disk.
-
-  - name: One-off containers (docker run)
-    note: Plain `docker run` commands for quick jobs, no compose file needed.
-    commands:
-      - id: run-npm-install
-        cmd: |-
-          sudo docker run --rm \
-            --user "$(id -u):$(id -g)" \
-            --env HOME=/tmp \
-            --mount "type=bind,source=$PWD/parse,target=/app" \
-            --workdir /app \
-            node:24-bookworm-slim \
-            sh -c 'npm init -y && npm install --save-exact parse-server@latest express@5 @parse/fs-files-adapter@latest'
-        desc: Create a Node project in `./parse` and install Parse Server, Express 5 and the file adapter, without installing Node on your machine. The files end up owned by you. [Full explanation](../../tutorials/install-npm-packages-with-docker/)
