@@ -135,6 +135,14 @@
         if (active) active.removeAttribute('aria-current');
         active = best;
         active.setAttribute('aria-current', 'true');
+        // Keep the highlighted entry in view when the list is taller than the panel
+        if (toc.scrollHeight > toc.clientHeight) {
+          var box = toc.getBoundingClientRect();
+          var at = active.getBoundingClientRect();
+          if (at.top < box.top + 40 || at.bottom > box.bottom - 40) {
+            toc.scrollTop += at.top - box.top - toc.clientHeight / 3;
+          }
+        }
       };
       window.addEventListener('scroll', function () {
         if (!ticking) { ticking = true; window.requestAnimationFrame(update); }

@@ -301,6 +301,8 @@ code, kbd, pre { font-family: var(--mono); }
 @media (min-width: 1040px) {
   .doc-body { grid-template-columns: minmax(0, 1fr) 15rem; gap: 4rem; align-items: start; }
   .doc-body .toc { grid-column: 2; grid-row: 1; position: sticky; top: 5rem; }
+  /* a long list scrolls inside the panel, so its end stays reachable */
+  .doc-body .toc { max-height: calc(100vh - 6rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding-right: 0.25rem; }
   .doc-body .prose, .doc-body .sheet-main { grid-column: 1; grid-row: 1; }
   .doc-body .related { grid-column: 1; grid-row: 2; }
   .toc summary { pointer-events: none; }
@@ -308,7 +310,7 @@ code, kbd, pre { font-family: var(--mono); }
 }
 @media (min-width: 1320px) {
   .doc-body:has(> .related) { grid-template-columns: 13rem minmax(0, 1fr) 14rem; gap: 3.5rem; }
-  .doc-body .related { grid-column: 1; grid-row: 1; position: sticky; top: 5rem; }
+  .doc-body .related { grid-column: 1; grid-row: 1; position: sticky; top: 5rem; max-height: calc(100vh - 6rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
   .doc-body:has(> .related) .prose { grid-column: 2; }
   .doc-body:has(> .related) .toc { grid-column: 3; }
 }
