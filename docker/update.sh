@@ -10,5 +10,5 @@ fi
 
 echo "$(date '+%F %T') updating to $(git rev-parse --short origin/main)"
 git merge --ff-only --quiet origin/main
-docker compose up -d --build
-docker image prune -f > /dev/null
+sudo docker compose up -d --build
+sudo docker image prune -f > /dev/null

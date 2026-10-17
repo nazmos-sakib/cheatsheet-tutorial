@@ -5,7 +5,7 @@ tags: [docker, cloudflare, self-hosting, linux, networking, jekyll]
 related: [docker-basics-explained-simply, ssh-key-configuration-on-pi, systemd-mount-ssd-at-boot]
 tested_on: "Docker Engine 29 with Compose v2, ruby:3.3 and nginx:stable-alpine images, cloudflared 2026.10. Written for Debian 13 (Trixie); Ubuntu and Mint work with the note in step 2."
 time: "1 to 2 hours"
-updated: 2026-10-15
+updated: 2026-10-17
 ---
 
 GitHub Pages builds and hosts this site for free, and that copy keeps working. This tutorial adds a second home for it: a PC in your own house. You will:
@@ -764,6 +764,45 @@ Now publishing a tutorial is just `git push` on your Mac: GitHub Pages updates i
 {% include callout.html type="tip" text="Prefer systemd over cron? A `.service` that runs the script plus a `.timer` with `OnCalendar=*:0/15` does the same job, and its output lands in `journalctl`. [Writing systemd units: mount an SSD at boot]({{ '/tutorials/systemd-mount-ssd-at-boot/' | relative_url }}) explains how unit files work." %}
 
 {% include callout.html type="warning" text="Don't edit files inside `~/workbench` on the PC (except `.env`, which Git ignores). Make every change on your Mac and push it. If the PC's copy has its own changes, `git merge --ff-only` stops and the site stops updating until you undo them with `git status` and `git restore`." %}
+
+### If your `docker` commands still need `sudo`
+
+If you skipped the `docker` group in step 2 and still type `sudo docker ...`, the script above can't rebuild the site. Cron runs it as your user, nobody is there to type a password, and `docker` without `sudo` stops with `permission denied`. The `git` part still works, so the PC fetches your changes but never rebuilds. You'll see the error in `~/workbench-update.log`.
+
+The fix is to let your user run `docker`, and only `docker`, through `sudo` without a password. Create a sudoers rule:
+
+```bash
+sudo visudo -f /etc/sudoers.d/docker-nopasswd
+```
+
+`visudo` opens an empty file. Add this line, using your own username (`whoami` prints it):
+
+{% include file.html name="/etc/sudoers.d/docker-nopasswd" %}
+
+```text
+yourusername ALL=(root) NOPASSWD: /usr/bin/docker
+```
+
+Save and exit. If nano offers a name ending in `.tmp`, keep it and press `Enter`: `visudo` edits a temporary copy, checks it for mistakes, and only then renames it to `docker-nopasswd`. If it finds a mistake it asks `What now?`. Press `e` to fix it. A broken sudoers file can lock you out of `sudo`, which is why you use `visudo` and not plain `nano`.
+
+Check it works. This should list your containers without asking for a password:
+
+```bash
+sudo -n docker ps
+```
+
+Then put `sudo -n` in front of the two `docker` lines at the end of `docker/update.sh`. Make this change on your Mac, then commit and push it like any other change:
+
+{% include file.html name="docker/update.sh" %}
+
+```bash
+sudo -n docker compose up -d --build
+sudo -n docker image prune -f > /dev/null
+```
+
+`-n` means "never ask for a password". If the rule is missing, `sudo` fails straight away with an error in the log instead of waiting forever for a password. Your crontab line stays exactly the same, and `git` still runs as you, so the files in `~/workbench` stay owned by you.
+
+{% include callout.html type="note" text="Running `sudo docker` without a password gives the same power as being in the `docker` group, since both effectively mean root. This rule isn't safer than the group; it just keeps the password prompt for everything else. Don't run the script from root's crontab (`sudo crontab -e`) instead: Git would then run as root in your folder, refuse with *dubious ownership*, and leave root-owned files behind." %}
 
 ## Check that it survives a reboot
 
