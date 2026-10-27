@@ -4,7 +4,7 @@ description: Turn a Raspberry Pi 4 and a USB drive into a network file server wi
 tags: [raspberry-pi, linux, nas, storage, networking]
 tested_on: "Written for Raspberry Pi OS Lite 64-bit (Trixie, Debian 13) and OpenMediaVault 8 on a Raspberry Pi 4 Model B"
 time: "1 to 2 hours"
-updated: 2026-10-13
+updated: 2026-10-27
 ---
 
 A NAS (network-attached storage) is a small computer whose only job is to keep your files on its disks and share them with every other device on your network. Commercial NAS boxes and NAS operating systems such as TrueNAS all do the same few things: they manage disks, keep user accounts, and share folders over SMB (what Windows and macOS speak) and NFS (what Linux likes best), all from a web dashboard.
@@ -60,7 +60,7 @@ On your computer:
    - **Hostname:** `nas`. This is how you'll reach it later, as `nas.local`.
    - **Username and password:** for example `naz` and a strong password. This is the Linux login, separate from the NAS web login.
    - **Locale:** your time zone and keyboard layout.
-   - **Wireless LAN:** leave it **off**. You'll use Ethernet.
+   - **Wireless LAN:** leave it **off** if you'll use Ethernet, which is recommended. If the Pi has to use Wi-Fi, fill it in now and read the Wi-Fi note in step 4 before installing OMV.
    - **SSH:** turn it **on**, with password authentication (you can switch to keys later, see [SSH key configuration on pi]({{ '/tutorials/ssh-key-configuration-on-pi/' | relative_url }})).
 4. Write the image. Imager erases the card, writes it and verifies it. When it's done, take the card out.
 
@@ -156,6 +156,8 @@ wget -O - https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/
 
 This takes 10 to 30 minutes on a Pi 4 and prints a lot of output. Leave it alone. At the end it reboots the Pi by itself.
 
+{% include callout.html type="warning" title="On Wi-Fi? Add -n" text="Without `-n`, the installer copies your Wi-Fi name and password into OMV, removes Raspberry Pi OS's own network manager and reboots. If copying the Wi-Fi details fails, the Pi drops off the network and you need a screen and keyboard or a cable to get it back. Plug in Ethernet before running it if you can. If the Pi can only use Wi-Fi, run the installer with `-n` so it leaves the network alone: `wget -O - https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install | sudo bash -s -- -n`. You still get OMV-Extras and the Pi tweaks. The Pi doesn't reboot, Wi-Fi keeps working as before, and you just can't change network settings from the OMV dashboard." %}
+
 {% include callout.html type="note" title="If the SSH session freezes" text="That's the network being reconfigured, and it's expected. Wait 15 to 30 minutes, then try `ssh naz@nas.local` again. If you get back in before the Pi has rebooted, `tmux attach -t omv` shows you the installer's progress." %}
 
 {% include callout.html type="note" title="Piping a script into sudo bash" text="These commands download a script and run it as root without saving it first. That's the method OMV documents, and the script comes from the official OMV plugin developers' GitHub. If you'd rather read it first, download it with `wget`, open it in `nano`, then run it with `sudo bash ./install`." %}
@@ -167,6 +169,35 @@ systemctl status openmediavault-engined
 ```
 
 `active (running)` means the install worked. Press `q` to leave the status view.
+
+### If the installer stops with ERROR 503
+
+The installer downloads OMV from `packages.openmediavault.org`. If that server is having an outage, the installer stops early with something like this:
+
+```text
+[omvinstall] Adding openmediavault repo and key...
+http://packages.openmediavault.org/public/archive.key:
+ERROR 503: Service Unavailable.
+[omvinstall] failed to download openmediavault key from http://packages.openmediavault.org/public/archive.key
+```
+
+503 means the server is temporarily unavailable. Nothing is wrong with your Pi or your network, and nothing important has changed yet, so it's safe to try again. First see which of OMV's two package servers is answering:
+
+```bash
+curl -sI http://packages.openmediavault.org/public/archive.key | head -1
+curl -sIL https://packages.openmediavault.io/archive.key | grep HTTP
+```
+
+- **The first line says `200`:** the main server is back. Run the installer command again.
+- **Only the second one ends in `200`:** install OMV with OMV's own official script, which also downloads from the backup server, `packages.openmediavault.io`:
+
+  ```bash
+  wget -O - https://get.openmediavault.io | sudo sh
+  ```
+
+  It ends with a summary showing `Failed: 0` and the dashboard's address and default login. Unlike the installer above, this script doesn't reboot the Pi. Then **run the OMV-Extras installer from this step again** (with `-n` if you're on Wi-Fi). It sees that OMV is already installed, skips the download that failed, and adds OMV-Extras, the Pi tweaks and the network handover. If it stops later with another error from the `.org` server, wait until that server is back and run it once more. OMV itself is already installed at that point.
+
+{% include callout.html type="note" title="A 302 is fine" text="If the `.io` check shows `HTTP/2 302` without `-L`, the server is answering and redirecting to where the file is stored. `wget` follows redirects automatically, so the official script works." %}
 
 ## Log in to the web dashboard and secure it
 
@@ -203,6 +234,8 @@ If the drive is new, or you're happy to lose what's on it, **wipe** it so OMV st
 1. Select the drive's row (`/dev/sda`). **Never** pick `/dev/mmcblk0`: that's the system.
 2. Click the **Wipe** button (the eraser icon) in the toolbar.
 3. Confirm, then choose **Quick**. A quick wipe takes a few seconds and removes the old partitions, which is all you need.
+
+{% include callout.html type="warning" title="Wipe and Create can't be undone" text="**Wipe** here and **Create** in the next step erase the disk the moment you confirm them. The yellow banner that appears afterwards is only about settings: clicking **Revert** or discarding it does **not** bring the data back. Double-check the device before you click, and never use either on a disk that holds files you want to keep." %}
 
 {% include callout.html type="note" title="Keeping the files that are already on the drive" text="If the drive already holds files on an ext4, NTFS or exFAT file system and you want to keep them, skip the wipe. In the next step, choose **Mount an existing file system** instead of creating one. NTFS and exFAT work, but Linux permissions don't apply to them, so for a drive that lives in the NAS permanently, ext4 is the better choice." %}
 
@@ -412,12 +445,134 @@ A NAS is only useful if you can trust it. A few minutes of setup here pays off l
 ## Troubleshooting
 {: .no-step}
 
+- **The SSD doesn't mount anymore, or the shared folders show "not available".** See **The SSD doesn't mount after a power cut** below.
 - **The drive keeps disconnecting, or the Pi reboots during big copies.** Almost always power. Use the official power supply, and give hard disks their own power through a powered USB hub or an enclosure with its own adapter. `dmesg | grep -i usb` on the Pi shows "reset" or "disconnect" messages when this happens.
 - **The OMV installer stops with a message about a desktop environment.** You flashed the desktop version of Raspberry Pi OS. Flash **Raspberry Pi OS Lite (64-bit)** and start again.
 - **`/etc/os-release` says `bookworm`.** That's Debian 12, and the current installer only supports Debian 13. Either flash a current Raspberry Pi OS Lite (64-bit) image, or install OMV 7 with the `installOld7` script from the same GitHub repository (replace `install` with `installOld7` in the command). OMV 7 looks and works almost the same.
+- **The installer fails with `ERROR 503: Service Unavailable`.** OMV's package server is down for a while. See **If the installer stops with ERROR 503** in step 4.
 - **I can't reach the Pi after the OMV install.** OMV moved the network setup over to itself and the Pi may have a new address. Look in your router's list of connected devices, or connect a screen and keyboard and run `ip -4 addr`. The DHCP reservation from step 3 prevents this in future.
 - **I can't log in to the dashboard.** Log in to the Pi over SSH and reset the web admin password with `sudo omv-firstaid`, then choose **Change control panel administrator password**. `omv-firstaid` can also reset the network if that's what's broken.
 - **Windows says the network path was not found.** Try the IP address instead of `nas.local`. Make sure SMB is **Enabled** under **Services → SMB/CIFS → Settings** and you applied the pending changes.
 - **Windows says I don't have permission, or keeps asking for a password.** Check the shared folder's **Permissions** (step 9) for that user. If Windows has saved a different login for the NAS, remove it under **Control Panel → Credential Manager → Windows Credentials**, then connect again.
 - **Copies are slow (under 30 MB/s).** Check the drive is in a **blue** USB 3 port, the Pi is on Ethernet rather than Wi-Fi, and your computer is wired too. Over Wi-Fi, the Wi-Fi is usually the limit, not the Pi.
 - **I want Docker apps (Jellyfin, Nextcloud, Immich...) on the NAS.** Install the **compose** plugin from **System → Plugins**. It adds a **Services → Compose** page for running containers, with their data on your shared folders. A Pi 4 with 4 GB or more handles a few light apps well.
+
+### The SSD doesn't mount after a power cut
+
+**What you see:** apps such as Syncthing or Nextcloud stop working, the shared folders in **Storage → Shared Folders** show **not available**, and **Storage → File Systems** shows the SSD as not mounted, sometimes under a different device name (`sdc` instead of `sda`) or with a different UUID.
+
+**Why it happens:** OMV finds a disk only by the **UUID** of its file system, a unique ID stored at the start of the file system. Device names like `sda` and `sdc` are handed out in the order disks show up at boot and can change at any time, so a new name on its own is harmless. A **different UUID**, though, means this is a different file system from the one OMV set up. A power cut can damage the file system, and a file system created again (by **Create** in OMV, or `mkfs`) always gets a new UUID.
+
+{% include callout.html type="warning" title="Don't write to the SSD while you investigate" text="No **Wipe** or **Create** in OMV, and no copying files onto it. If your old files are still there, writing to the disk is what destroys them. Stop the apps that use the SSD too: in **Services → Compose → Files**, select each one and click **Down**." %}
+
+#### 1. Find out what's wrong
+
+Show which UUID OMV expects (the long ID after `/dev/disk/by-uuid/`):
+
+```bash
+grep /srv /etc/fstab
+```
+
+```text
+/dev/disk/by-uuid/e4cf455c-238f-442d-a08f-9ddf45850684  /srv/dev-disk-by-uuid-e4cf455c-238f-442d-a08f-9ddf45850684  ext4  defaults,nofail,...
+```
+
+Show the disks that are connected and the UUIDs they have now:
+
+```bash
+lsblk -f
+```
+
+Find the SSD by its size; its partition is usually `/dev/sda1`. Save both values in variables so the next commands can use them (replace them with yours):
+
+```bash
+OLD=e4cf455c-238f-442d-a08f-9ddf45850684   # the UUID from /etc/fstab
+DEV=/dev/sda1                              # the SSD's partition from lsblk
+```
+
+Now compare:
+
+- **The SSD has the same UUID as `fstab`**: the file system is only damaged. Check and repair it with `sudo fsck.ext4 -fn $DEV` (look, change nothing), then `sudo fsck.ext4 -fy $DEV` (repair), and reboot. You're done; the steps below are for the other case.
+- **The SSD has a different UUID**: carry on. First make sure no other disk still uses the old UUID. This should print nothing:
+
+  ```bash
+  sudo blkid -U $OLD
+  ```
+
+#### 2. Check what's on the SSD
+
+Check the file system for errors without changing anything, then look inside it **read-only**:
+
+```bash
+sudo fsck.ext4 -fn $DEV
+sudo mkdir -p /mnt/check && sudo mount -o ro $DEV /mnt/check && ls /mnt/check; sudo umount /mnt/check
+sudo dumpe2fs -h $DEV | grep -E "created|Last mount"
+```
+
+- **Your folders are there:** only the UUID changed and nothing is lost. The fix below makes OMV use the disk again as it is.
+- **Only `lost+found`, and `Filesystem created` is recent:** the disk was formatted. The fix below still brings OMV, your shared folders and your apps back, but the files have to come back from your other devices (Syncthing) or a backup.
+
+Also look at the mount folder itself. Because OMV mounts with `nofail`, apps can write into this folder on the **SD card** while the SSD is missing:
+
+```bash
+sudo du -sh /srv/dev-disk-by-uuid-$OLD
+```
+
+A few KB is just empty folders. Move them aside (rather than deleting them) and put an empty folder back, so the SSD can be mounted there:
+
+```bash
+sudo mv /srv/dev-disk-by-uuid-$OLD /root/srv-leftovers
+sudo mkdir /srv/dev-disk-by-uuid-$OLD
+```
+
+If it shows megabytes or more, look inside first. Those are files your apps saved while the SSD was gone, and you'll want to copy them onto the SSD afterwards.
+
+#### 3. Give the SSD its old UUID back
+
+```bash
+sudo e2fsck -f $DEV
+sudo tune2fs -U $OLD $DEV
+sudo systemctl daemon-reload
+sudo mount -a
+```
+
+What each command does:
+
+- **`e2fsck -f`** checks the whole file system and fixes any errors. `tune2fs` refuses to change a UUID until the file system has just been checked, so this always comes first. The disk must not be mounted.
+- **`tune2fs -U $OLD $DEV`** changes the file system's UUID to the one OMV expects. It rewrites only that ID (plus the file system's internal checksums, which are based on it). Your files are not touched. To OMV, the disk now looks exactly like the one it set up, so its mount entry, shared folders, SMB shares and app settings all work again without changes.
+- **`systemctl daemon-reload`** makes systemd re-read `/etc/fstab`, so it knows about the disk under its new ID.
+- **`mount -a`** mounts everything listed in `/etc/fstab` that isn't mounted yet, including the SSD.
+
+Check it worked. This should show your partition (`/dev/sda1`):
+
+```bash
+findmnt /srv/dev-disk-by-uuid-$OLD
+```
+
+In the dashboard, **Storage → File Systems** shows the SSD as mounted again.
+
+#### 4. Recreate the shared folders (only if the disk was formatted)
+
+If the shared folders still show **not available**, their settings are fine (OMV keeps them on the SD card) but the folders themselves are missing on the SSD. This creates all of them in one go, with the owner and rights OMV gives a new shared folder:
+
+```bash
+mnt=/srv/dev-disk-by-uuid-$OLD
+sudo omv-confdbadm read conf.system.sharedfolder | jq -r '.[].reldirpath' | while read -r p; do
+  sudo mkdir -p "$mnt/$p"
+  sudo chown root:users "$mnt/$p"
+  sudo chmod 2775 "$mnt/$p"
+done
+ls -l "$mnt"
+```
+
+- **`omv-confdbadm read conf.system.sharedfolder`** prints every shared folder from OMV's settings, and **`jq -r '.[].reldirpath'`** picks out each one's path on the disk (for example `development/android/`).
+- **`mkdir -p`** creates each folder, including parent folders, and doesn't complain if one already exists.
+- **`chown root:users`** and **`chmod 2775`** match OMV's default for **Administrator: read/write, Users: read/write, Others: read-only**. The `2` keeps new files inside in the `users` group. For a folder set to **Others: no access**, run `sudo chmod 2770` on it instead.
+
+Reload the dashboard, and the folders show as available. You don't need to redo the per-user **Permissions** or the SMB shares; those live in OMV's settings, not on the disk.
+
+#### 5. Restore the files and restart the apps
+
+Copy your files back from a device that still has them, for example a computer that syncs with Syncthing, or from your backup. Then start the apps again under **Services → Compose → Files** (**Up**). Some apps need their data folder to belong to a specific user; for the official Nextcloud image that's `sudo chown -R 33:33` on its data folder.
+
+{% include callout.html type="tip" title="So it doesn't happen again" text="Shut down from the dashboard's power menu, never by pulling the plug. Plug the SSD's power and the Pi into the same power strip, or better, a small UPS. Keep a second copy of everything with a nightly **Rsync** job to another drive (see step 15). And remember that **Wipe** and **Create** in OMV run immediately: discarding the yellow banner afterwards does not undo them." %}

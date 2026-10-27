@@ -1,0 +1,295 @@
+# Commands for the Tailscale cheatsheet.
+# Each section becomes a heading; each command becomes a row with a copy button.
+#   cmd:  the command exactly as you'd type it (multi-line snippets use a `|-` block)
+#   desc: what it does (Markdown allowed, e.g. `code` or **bold**)
+#   id:   optional short name — lets you link to it (#id) and reuse it in tutorials
+
+sections:
+  - name: Install and update
+    commands:
+      - id: install
+        cmd: curl -fsSL https://tailscale.com/install.sh | sh
+        desc: Install Tailscale on Linux from Tailscale's own package repository. Works on Debian, Ubuntu, Raspberry Pi OS and most others.
+      - id: version
+        cmd: tailscale version
+        desc: Show the client version. Add `--daemon` to also show the version of the background service.
+      - id: update
+        cmd: sudo tailscale update
+        desc: Update Tailscale to the latest stable version.
+      - id: auto-update
+        cmd: sudo tailscale set --auto-update
+        desc: Let Tailscale update itself in the background from now on.
+
+  - name: Connect and sign in
+    commands:
+      - id: up
+        cmd: sudo tailscale up
+        desc: Connect this device to your tailnet. The first time, it prints a login link to open in any browser.
+      - id: up-ssh
+        cmd: sudo tailscale up --ssh
+        desc: Connect and turn on Tailscale SSH in one go, so tailnet devices can SSH in with no keys or passwords.
+      - id: up-hostname
+        cmd: sudo tailscale up --hostname=NAME
+        desc: Connect with a custom device name instead of the system hostname.
+      - id: up-authkey
+        cmd: sudo tailscale up --auth-key=tskey-auth-XXXX
+        desc: Sign in without a browser, using an auth key from **Settings → Keys** in the admin console. Handy for scripts and headless machines.
+      - id: up-reset
+        cmd: sudo tailscale up --reset
+        desc: Connect and put every option you don't name back to its default.
+      - id: down
+        cmd: sudo tailscale down
+        desc: Disconnect from the tailnet but stay signed in. `tailscale up` reconnects.
+      - id: login
+        cmd: sudo tailscale login
+        desc: Sign in to an account (or add a second one) without changing other options.
+      - id: logout
+        cmd: sudo tailscale logout
+        desc: Disconnect and sign out. You need to log in again (`tailscale up`) to rejoin.
+      - id: switch-list
+        cmd: tailscale switch --list
+        desc: List the accounts and tailnets this device is signed in to.
+      - id: switch
+        cmd: sudo tailscale switch ACCOUNT
+        desc: Switch to another signed-in account or tailnet (name from `--list`).
+
+  - name: Status and diagnostics
+    commands:
+      - id: status
+        cmd: tailscale status
+        desc: List every device in the tailnet with its Tailscale IP, name, OS and whether it's online, active, direct or relayed.
+      - id: status-json
+        cmd: tailscale status --json
+        desc: The same as JSON, with much more detail. Pipe it into `jq`.
+      - id: status-names
+        cmd: tailscale status --json | jq -r '.Peer[].HostName'
+        desc: Print just the names of the other devices.
+      - id: ip
+        cmd: tailscale ip -4
+        desc: Print this device's Tailscale IPv4 address (`100.x.y.z`). Drop `-4` to see the IPv6 one too.
+      - id: ip-device
+        cmd: tailscale ip DEVICE
+        desc: Print another device's Tailscale IP.
+      - id: ping
+        cmd: tailscale ping DEVICE
+        desc: Ping a device over Tailscale and show whether the path is **direct** or goes through a **DERP** relay. It stops once a direct path is found.
+      - id: netcheck
+        cmd: tailscale netcheck
+        desc: "Check this network: UDP, IPv6, NAT type and the latency to each DERP relay. Run it when connections are slow or relayed."
+      - id: whois
+        cmd: tailscale whois 100.X.Y.Z
+        desc: Show which device and user own a Tailscale IP.
+      - id: debug-prefs
+        cmd: tailscale debug prefs
+        desc: Print all of this device's current settings (exit node, routes, SSH, DNS and so on) as JSON.
+      - id: bugreport
+        cmd: tailscale bugreport
+        desc: Print a bug-report ID to give Tailscale support. It marks the logs; it shares nothing on its own.
+
+  - name: The tailscaled service (Linux)
+    note: "`tailscaled` is the background service that does the actual networking; the `tailscale` command only talks to it."
+    commands:
+      - id: service-status
+        cmd: systemctl status tailscaled
+        desc: Check that the service is running and enabled at boot.
+      - id: service-restart
+        cmd: sudo systemctl restart tailscaled
+        desc: Restart the service. The device reconnects on its own with the same settings.
+      - id: service-logs
+        cmd: journalctl -u tailscaled -f
+        desc: Follow the service's log. Stop with `Ctrl+C`.
+      - id: operator
+        cmd: sudo tailscale set --operator=$USER
+        desc: Let your user run `tailscale` commands that change things (`set`, `up`, `file get`, `serve`) without `sudo`.
+
+  - name: Change settings
+    note: Each `set` changes only the option you name. Put several in one command, e.g. `sudo tailscale set --ssh --accept-routes`.
+    commands:
+      - id: set-hostname
+        cmd: sudo tailscale set --hostname=NAME
+        desc: Rename this device in the tailnet. Its MagicDNS name changes with it.
+      - id: set-shields-up
+        cmd: sudo tailscale set --shields-up
+        desc: Block every incoming connection from the tailnet, while this device can still reach others. `--shields-up=false` turns it off.
+      - id: set-webclient
+        cmd: sudo tailscale set --webclient
+        desc: Turn on the device's web settings page at `http://DEVICE:5252`, reachable only over the tailnet.
+      - id: web
+        cmd: tailscale web
+        desc: Run that web settings page once in the foreground, at `http://localhost:8088`.
+
+  - name: SSH
+    commands:
+      - id: set-ssh
+        cmd: sudo tailscale set --ssh
+        desc: Turn on Tailscale SSH on this device (Linux and macOS open-source client). Who may log in is set by the tailnet policy's `ssh` rules. `--ssh=false` turns it off.
+      - id: tailscale-ssh
+        cmd: tailscale ssh USER@DEVICE
+        desc: SSH into a device that has Tailscale SSH turned on. Plain `ssh USER@DEVICE` works too.
+      - id: plain-ssh
+        cmd: ssh USER@DEVICE
+        desc: Normal OpenSSH over the tailnet, using the device's MagicDNS name. Uses your usual keys; no Tailscale SSH needed. See [SSH into the NAS from anywhere](../../tutorials/tailscale-remote-access-openmediavault/).
+
+  - name: Exit nodes
+    note: An exit node sends all your internet traffic out through another device in your tailnet, like a classic VPN. A new exit node must be approved in the admin console (**Machines → ⋯ → Edit route settings**).
+    commands:
+      - id: exit-node-list
+        cmd: tailscale exit-node list
+        desc: List the devices you can use as an exit node.
+      - id: exit-node-suggest
+        cmd: tailscale exit-node suggest
+        desc: Suggest the best exit node for where you are now.
+      - id: exit-node-use
+        cmd: sudo tailscale set --exit-node=DEVICE
+        desc: Send all internet traffic through `DEVICE` (name or Tailscale IP).
+      - id: exit-node-lan
+        cmd: sudo tailscale set --exit-node=DEVICE --exit-node-allow-lan-access
+        desc: Use an exit node but keep reaching your local network, such as your printer or router.
+      - id: exit-node-off
+        cmd: sudo tailscale set --exit-node=
+        desc: Stop using an exit node. Note the empty value after `=`.
+      - id: ip-forward
+        cmd: |-
+          echo 'net.ipv4.ip_forward = 1' | sudo tee /etc/sysctl.d/99-tailscale.conf
+          echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
+          sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
+        desc: Turn on IP forwarding on Linux, permanently. Needed once before a Linux device can be an exit node or subnet router.
+      - id: advertise-exit-node
+        cmd: sudo tailscale set --advertise-exit-node
+        desc: Offer this device as an exit node. `--advertise-exit-node=false` stops offering it.
+
+  - name: Subnet routes
+    note: A subnet router lets tailnet devices reach machines on its local network that don't run Tailscale. Routes need approving in the admin console, like exit nodes. See [Reach the rest of your home network](../../tutorials/tailscale-remote-access-openmediavault/).
+    commands:
+      - id: advertise-routes
+        cmd: sudo tailscale set --advertise-routes=192.168.1.0/24
+        desc: Share your home network (`192.168.1.0/24` here) with the tailnet. Separate several with commas. Needs IP forwarding (see Exit nodes).
+      - id: advertise-routes-off
+        cmd: sudo tailscale set --advertise-routes=
+        desc: Stop sharing any routes.
+      - id: accept-routes
+        cmd: sudo tailscale set --accept-routes
+        desc: On Linux, use the routes other devices share. Windows, macOS and phones accept them by default.
+
+  - name: DNS and MagicDNS
+    note: With MagicDNS on (the default), every device answers to its short name (`nas`) and its full name (`nas.TAILNET`).
+    commands:
+      - id: dns-status
+        cmd: tailscale dns status
+        desc: "Show this device's DNS setup: whether MagicDNS is on, the tailnet's domain, nameservers and search domains."
+      - id: dns-query
+        cmd: tailscale dns query DEVICE
+        desc: Look a name up through Tailscale's own DNS resolver (`100.100.100.100`), to check what it answers.
+      - id: accept-dns-off
+        cmd: sudo tailscale set --accept-dns=false
+        desc: Keep this device's own DNS settings and ignore the tailnet's. Useful on a Pi running Pi-hole or AdGuard. MagicDNS names then stop resolving here.
+      - id: accept-dns-on
+        cmd: sudo tailscale set --accept-dns
+        desc: Use the tailnet's DNS settings again.
+
+  - name: Taildrop (send and receive files)
+    note: Taildrop sends files between your own devices. On a Linux server, files wait in an inbox until you collect them; [Receive Taildrop files automatically](../../tutorials/taildrop-auto-receive-on-linux/) makes that happen on its own.
+    commands:
+      - id: file-cp
+        cmd: "tailscale file cp FILE DEVICE:"
+        desc: Send a file to a device. The colon at the end is required. Send several at once with `tailscale file cp a.jpg b.jpg DEVICE:`.
+      - id: file-cp-stdin
+        cmd: "tailscale file cp --name=NAME.txt - DEVICE:"
+        desc: Send whatever is piped in (`-` means standard input), saved as `NAME.txt` on the other side.
+      - id: file-cp-targets
+        cmd: tailscale file cp --targets
+        desc: List the devices you can send files to.
+      - id: file-get
+        cmd: tailscale file get ~/taildrop
+        desc: Move any waiting files into `~/taildrop`, then exit. Needs `sudo` unless you are the operator.
+      - id: file-get-wait
+        cmd: tailscale file get --wait ~/taildrop
+        desc: If the inbox is empty, wait for the next file, collect it, then exit.
+      - id: file-get-loop
+        cmd: tailscale file get --loop ~/taildrop
+        desc: Keep running and collect every file as it arrives. Stop with `Ctrl+C`. This is what the Taildrop service runs.
+      - id: file-get-conflict
+        cmd: tailscale file get --conflict=rename ~/taildrop
+        desc: If a file with the same name is already there, save as `name (1).ext`. Other choices are `skip` (the default, leaves it in the inbox) and `overwrite`.
+      - id: file-get-verbose
+        cmd: tailscale file get --verbose ~/taildrop
+        desc: Print each file it saves.
+
+  - name: Serve (share inside your tailnet)
+    note: "`serve` puts a local web app or folder on `https://DEVICE.TAILNET`, with a real HTTPS certificate, for tailnet devices only. Without `--bg`, it runs until you press `Ctrl+C`."
+    commands:
+      - id: serve
+        cmd: tailscale serve 3000
+        desc: Share `http://localhost:3000` at `https://DEVICE.TAILNET` until you press `Ctrl+C`.
+      - id: serve-bg
+        cmd: tailscale serve --bg 3000
+        desc: The same, but in the background, and it comes back after a reboot.
+      - id: serve-https-port
+        cmd: tailscale serve --bg --https=8443 localhost:8080
+        desc: Share a local app on a different HTTPS port, here `https://DEVICE.TAILNET:8443`.
+      - id: serve-path
+        cmd: tailscale serve --bg --set-path=/files /home/USER/share
+        desc: Serve a folder (or a single file) at `https://DEVICE.TAILNET/files`.
+      - id: serve-tcp
+        cmd: tailscale serve --bg --tcp=2222 tcp://localhost:22
+        desc: Forward raw TCP instead of HTTP, here tailnet port 2222 to the local SSH server.
+      - id: serve-status
+        cmd: tailscale serve status
+        desc: Show what is being served, and where.
+      - id: serve-off
+        cmd: tailscale serve --https=443 off
+        desc: Stop serving on one port. Use the same flags you started it with, plus `off`.
+      - id: serve-reset
+        cmd: tailscale serve reset
+        desc: Stop everything `serve` is sharing.
+
+  - name: Funnel (share on the public internet)
+    note: "`funnel` works like `serve`, but anyone on the internet can open the link, not just your tailnet. It only uses ports 443, 8443 and 10000, and the tailnet policy must allow it (the first run prints a link to turn it on). Only share what's safe to be public."
+    commands:
+      - id: funnel
+        cmd: tailscale funnel 3000
+        desc: Make `http://localhost:3000` public at `https://DEVICE.TAILNET` until you press `Ctrl+C`.
+      - id: funnel-bg
+        cmd: tailscale funnel --bg 3000
+        desc: The same in the background; it stays on after a reboot.
+      - id: funnel-port
+        cmd: tailscale funnel --bg --https=8443 localhost:8080
+        desc: Make a local app public on port 8443.
+      - id: funnel-status
+        cmd: tailscale funnel status
+        desc: Show what is public and what is tailnet-only.
+      - id: funnel-off
+        cmd: tailscale funnel --https=443 off
+        desc: Stop the public link on one port.
+      - id: funnel-reset
+        cmd: tailscale funnel reset
+        desc: Turn off every public link and every `serve` share.
+
+  - name: HTTPS certificates
+    note: Needs **HTTPS Certificates** turned on in the admin console's DNS page. The device's full name ends up in the public Certificate Transparency logs.
+    commands:
+      - id: cert
+        cmd: sudo tailscale cert DEVICE.TAILNET
+        desc: Get a Let's Encrypt certificate for this device. Saves `DEVICE.TAILNET.crt` and `.key` in the current folder.
+      - id: cert-files
+        cmd: sudo tailscale cert --cert-file=/etc/ssl/ts.crt --key-file=/etc/ssl/ts.key DEVICE.TAILNET
+        desc: Save the certificate and key where your web server expects them. Run it again before the 90 days run out (`serve` and `funnel` renew on their own).
+
+  - name: Taildrive (share folders)
+    note: Taildrive shares folders as a WebDAV drive at `http://100.100.100.100:8080`. It is in alpha and must be allowed in the tailnet policy with a `drive:share` attribute.
+    commands:
+      - id: drive-share
+        cmd: tailscale drive share NAME /path/to/folder
+        desc: Share a folder under the name `NAME`.
+      - id: drive-list
+        cmd: tailscale drive list
+        desc: List this device's shared folders.
+      - id: drive-unshare
+        cmd: tailscale drive unshare NAME
+        desc: Stop sharing a folder.
+
+  - name: Shell completion
+    commands:
+      - id: completion
+        cmd: tailscale completion bash | sudo tee /etc/bash_completion.d/tailscale > /dev/null
+        desc: "Turn on `Tab` completion for `tailscale` in bash. Open a new terminal afterwards. For zsh or fish, see `tailscale completion --help`."
