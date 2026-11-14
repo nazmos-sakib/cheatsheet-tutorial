@@ -2,7 +2,7 @@
 title: Host this site on a Debian PC with Docker and Cloudflare Tunnel
 description: Run this Jekyll site in a Docker container on your own Debian machine, test it from your phone on the home network, then put it on the internet through a Cloudflare Tunnel without opening a single port on your router.
 tags: [docker, cloudflare, self-hosting, linux, networking, jekyll]
-related: [docker-basics-explained-simply, ssh-key-configuration-on-pi, systemd-mount-ssd-at-boot]
+related: [host-this-site-on-openmediavault-with-compose, docker-basics-explained-simply, ssh-key-configuration-on-pi, systemd-mount-ssd-at-boot]
 tested_on: "Docker Engine 29 with Compose v2, ruby:3.3 and nginx:stable-alpine images, cloudflared 2026.10. Written for Debian 13 (Trixie); Ubuntu and Mint work with the note in step 2."
 time: "1 to 2 hours"
 updated: 2026-10-17
@@ -17,6 +17,8 @@ GitHub Pages builds and hosts this site for free, and that copy keeps working. T
 5. Make it update itself whenever you push to GitHub.
 
 The steps start from a fresh PC and get more advanced as you go. You can stop after step 10 if you only want it on your home network.
+
+{% include callout.html type="tip" title="Running OpenMediaVault?" text="If your always-on machine is an OMV NAS, follow [Host this site on your OpenMediaVault NAS with the compose plugin]({{ '/tutorials/host-this-site-on-openmediavault-with-compose/' | relative_url }}) instead. It uses the same Dockerfile and tunnel, managed from **Services → Compose**, on port 8081 because OMV's dashboard has port 80." %}
 
 If words like *image*, *container*, *port* or *volume* are new, read [Docker basics, explained simply]({{ '/tutorials/docker-basics-explained-simply/' | relative_url }}) first. This page uses those words without explaining them again.
 

@@ -1,7 +1,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {% seo %}
+  {%- comment -%} Tab title: page name first, so open tabs are easy to tell apart. {%- endcomment -%}
+  {%- if page.layout == 'cheatsheet' %}{% capture tab_title %}{{ page.title }} cheatsheet | {{ site.title }}{% endcapture %}
+  {%- elsif page.title %}{% capture tab_title %}{{ page.title }} | {{ site.title }}{% endcapture %}
+  {%- else %}{% capture tab_title %}{{ site.title }}{% if site.tagline %} | {{ site.tagline }}{% endif %}{% endcapture %}
+  {%- endif %}
+  <title>{{ tab_title | smartify | strip_html | normalize_whitespace | escape_once }}</title>
+  {% seo title=false %}
   <script>
     // Apply the saved theme before the page paints, so there is no flash.
     (function () {

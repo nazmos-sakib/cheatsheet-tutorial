@@ -82,6 +82,50 @@
     });
   });
 
+  /* ---------- header height ---------- */
+  // The header wraps to two rows on phones; share its real height so sticky bars and anchor jumps sit below it.
+  var headerEl = document.querySelector('.site-header');
+  if (headerEl) {
+    var setHeaderHeight = function () { root.style.setProperty('--header-h', headerEl.offsetHeight + 'px'); };
+    setHeaderHeight();
+    window.addEventListener('resize', setHeaderHeight, { passive: true });
+  }
+
+  /* ---------- page title in the sticky header ---------- */
+  // Once the page's own <h1> has scrolled up under the header, show its title there instead of the site name.
+  var pageTitle = document.querySelector('[data-page-title]');
+  var pageHeading = document.querySelector('.doc-header h1');
+  var siteHeader = document.querySelector('.site-header');
+  if (pageTitle && pageHeading && siteHeader) {
+    var setTitled = function (on) {
+      if (siteHeader.classList.contains('is-titled') === on) return;
+      siteHeader.classList.toggle('is-titled', on);
+      pageTitle.hidden = !on;
+    };
+    var checkTitle = function () {
+      setTitled(pageHeading.getBoundingClientRect().bottom < siteHeader.getBoundingClientRect().bottom);
+    };
+    if ('IntersectionObserver' in window) {
+      var watchTitle = function () {
+        if (watchTitle.io) watchTitle.io.disconnect();
+        watchTitle.io = new IntersectionObserver(function () { checkTitle(); }, {
+          rootMargin: '-' + Math.round(siteHeader.offsetHeight) + 'px 0px 0px 0px'
+        });
+        watchTitle.io.observe(pageHeading);
+      };
+      watchTitle();
+      window.addEventListener('resize', watchTitle, { passive: true });
+    } else {
+      window.addEventListener('scroll', checkTitle, { passive: true });
+    }
+    checkTitle();
+    pageTitle.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0 });
+      if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
+    });
+  }
+
   /* ---------- table of contents ---------- */
   var toc = document.querySelector('[data-toc]');
   if (toc) {

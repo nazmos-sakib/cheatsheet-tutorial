@@ -2,6 +2,13 @@
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="wordmark" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    {%- if page.layout == 'tutorial' or page.layout == 'cheatsheet' or page.layout == 'page' %}
+    {%- if page.layout == 'tutorial' %}{% assign kind = 'Tutorial' %}{% elsif page.layout == 'cheatsheet' %}{% assign kind = 'Cheatsheet' %}{% else %}{% assign kind = nil %}{% endif %}
+    <a class="page-title" href="#main" data-page-title hidden title="{{ page.title | escape }} (back to top)">
+      {%- if kind %}<span class="page-title-kind">{{ kind }}</span>{% endif -%}
+      <span class="page-title-text">{{ page.title | escape }}</span>
+    </a>
+    {%- endif %}
     <nav class="site-nav" aria-label="Main">
       <a href="{{ '/tutorials/' | relative_url }}" {% if path contains '/tutorials/' %}aria-current="page"{% endif %}>Tutorials</a>
       <a href="{{ '/cheatsheets/' | relative_url }}" {% if path contains '/cheatsheets/' %}aria-current="page"{% endif %}>Cheatsheets</a>
